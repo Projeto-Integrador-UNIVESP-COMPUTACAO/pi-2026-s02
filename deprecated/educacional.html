@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Quant Neural - Matemática Financeira Prática, Formação do Investidor Profissional e Inteligência Artificial na B3.">
+    <title>Quant Neural - Matemática Financeira & Formação de Investidores</title>
+    <style>
+        :root {
+            --bg-main: #0d1117;
+            --bg-card: #161b22;
+            --bg-subtle: #21262d;
+            --border-color: #30363d;
+            --text-primary: #c9d1d9;
+            --text-heading: #ffffff;
+            --text-muted: #8b949e;
+            --accent-blue: #58a6ff;
+            --accent-green: #238636;
+            --accent-green-hover: #2ea043;
+            --accent-purple: #bc8cff;
+            --accent-orange: #f0883e;
+            --accent-red: #f85149;
+            --accent-cyan: #39c5cf;
+        }
+        * {
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.65;
+        }
+        header {
+            background-color: rgba(22, 27, 34, 0.92);
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: a0;
+            z-index: 900;
+            backdrop-filter: blur(12px);
+        }
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+        .logo span {
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 400;
+            display: block;
+            margin-top: 2px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .nav-links a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover {
+            color: var(--accent-blue);
+        }
+        .btn-plataforma {
+            background-color: var(--accent-green);
+            color: #ffffff;
+            padding: 9px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.1s;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-plataforma:hover {
+            background-color: var(--accent-green-hover);
+        }
+        .hero {
+            text-align: center;
+            padding: 64px 20px 48px;
+            background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-main) 100%);
+            border-bottom: 1px solid rgba(48, 54, 61, 0.4);
+        }
+        .hero .badge {
+            background-color: rgba(57, 197, 207, 0.15);
+            color: var(--accent-cyan);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-bottom: 18px;
+            border: 1px solid rgba(57, 197, 207, 0.3);
+        }
+        .hero h1 {
+            font-size: clamp(28px, 5vw, 42px);
+            color: var(--text-heading);
+            margin: 0 auto 18px;
+            max-width: 900px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+        .hero p {
+            font-size: clamp(15px, 2.2vw, 17.5px);
+            color: var(--text-muted);
+            max-width: 780px;
+            margin: 0 auto 28px;
+            line-height: 1.6;
+        }
+        .hero-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .btn-outline {
+            background-color: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 13.5px;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .btn-outline:hover {
+            border-color: var(--accent-blue);
+            background-color: var(--bg-subtle);
+        }
+        .container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .secao-titulo {
+            font-size: 24px;
+            color: var(--text-heading);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+            margin-bottom: 28px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .curso-wrapper {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 28px;
+            margin-top: 16px;
+            align-items: start;
+        }
+        .curso-sidebar {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 18px;
+            position: sticky;
+            top: 80px;
+        }
+        .curso-sidebar h4 {
+            color: var(--text-heading);
+            margin: 0 0 14px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+        .curso-sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .curso-sidebar li {
+            margin-bottom: 4px;
+        }
+        .curso-sidebar a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            display: block;
+            padding: 7px 10px;
+            border-radius: 5px;
+            transition: all 0.15s;
+        }
+        .curso-sidebar a:hover {
+            color: var(--accent-blue);
+            background-color: var(--bg-subtle);
+        }
+        .curso-content {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 32px;
+        }
+        .modulo-bloco {
+            margin-bottom: 48px;
+            padding-bottom: 36px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .modulo-bloco:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        .modulo-badge {
+            background-color: rgba(188, 140, 255, 0.15);
+            color: var(--accent-purple);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .modulo-badge-math {
+            background-color: rgba(57, 197, 207, 0.15);
+            color: var(--accent-cyan);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .modulo-bloco h3 {
+            color: var(--text-heading);
+            font-size: 22px;
+            margin: 12px 0 18px;
+        }
+        .sub-card {
+            background-color: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: border-color 0.2s ease;
+        }
+        .sub-card:hover {
+            border-color: rgba(88, 166, 255, 0.35);
+        }
+        .sub-card h4 {
+            color: var(--accent-blue);
+            font-size: 16px;
+            margin: 0 0 10px;
+        }
+        .sub-card p {
+            font-size: 14.5px;
+            color: var(--text-primary);
+            line-height: 1.65;
+            margin: 0 0 10px;
+        }
+        .exemplo-box {
+            background-color: rgba(22, 27, 34, 0.85);
+            border-left: 3px solid var(--accent-blue);
+            padding: 12px 16px;
+            border-radius: 0 6px 6px 0;
+            font-size: 13.5px;
+            color: var(--text-muted);
+            line-height: 1.55;
+            margin-top: 10px;
+        }
+        .exemplo-box-cyan {
+            background-color: rgba(22, 27, 34, 0.85);
+            border-left: 3px solid var(--accent-cyan);
+            padding: 12px 16px;
+            border-radius: 0 6px 6px 0;
+            font-size: 13.5px;
+            color: var(--text-muted);
+            line-height: 1.55;
+            margin-top: 10px;
+        }
+        .formula-box {
+            background: #090d13;
+            border: 1px solid #30363d;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #7ee787;
+            font-size: 14px;
+            margin: 10px 0;
+            display: inline-block;
+        }
+        .destaque-callout {
+            background-color: var(--bg-main);
+            border-left: 4px solid var(--accent-blue);
+            padding: 16px 20px;
+            margin: 18px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 14.5px;
+        }
+        .alerta-callout {
+            background-color: rgba(248, 81, 73, 0.08);
+            border-left: 4px solid var(--accent-red);
+            padding: 16px 20px;
+            margin: 18px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 14px;
+        }
+        .calc-box {
+            background-color: var(--bg-main);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 8px;
+            padding: 22px;
+            margin: 22px 0;
+        }
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        .calc-input-group label {
+            display: block;
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+        .calc-input-group input {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .calc-result {
+            background: var(--bg-card);
+            padding: 14px;
+            border-radius: 6px;
+            margin-top: 14px;
+            border: 1px dashed var(--accent-green);
+        }
+        .calc-result-val {
+            font-size: 22px;
+            font-weight: 700;
+            color: #7ee787;
+        }
+        .tabela-container {
+            overflow-x: auto;
+            margin: 18px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            text-align: left;
+        }
+        th {
+            background-color: var(--bg-subtle);
+            color: var(--text-heading);
+            padding: 11px 13px;
+            border: 1px solid var(--border-color);
+            font-weight: 600;
+        }
+        td {
+            padding: 11px 13px;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+        .grid-artigos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 22px;
+        }
+        .card-artigo {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-artigo:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+        }
+        .card-conteudo {
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .card-tag {
+            align-self: flex-start;
+            background-color: rgba(56, 139, 253, 0.15);
+            color: var(--accent-blue);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .card-conteudo h3 {
+            color: var(--text-heading);
+            margin: 14px 0 10px;
+            font-size: 18px;
+            line-height: 1.35;
+        }
+        .card-conteudo p {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 18px;
+            flex-grow: 1;
+        }
+        .card-link {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .card-link:hover {
+            text-decoration: underline;
+        }
+        .form-captura {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+        }
+        .input-captura {
+            background-color: var(--bg-main);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 11px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            width: 100%;
+        }
+        .input-captura:focus {
+            border-color: var(--accent-blue);
+            outline: none;
+        }
+        .container-lgpd {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .checkbox-lgpd {
+            margin-top: 3px;
+            cursor: pointer;
+        }
+        .texto-lgpd {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        .aviso-legal {
+            font-size: 11px;
+            color: #484f58;
+            line-height: 1.4;
+            text-align: justify;
+            margin: 4px 0 0;
+        }
+        .modal-carteira {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(13, 17, 23, 0.88);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+        .conteudo-modal {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 26px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 16px 36px rgba(0,0,0,0.6);
+        }
+        #reader {
+            width: 100%;
+            background-color: var(--bg-main);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            margin-top: 14px;
+        }
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 13px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 50px;
+            background-color: var(--bg-card);
+        }
+        .lista-check {
+            margin: 8px 0 0;
+            padding-left: 18px;
+        }
+        .lista-check li {
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        @media (max-width: 860px) {
+            .curso-wrapper {
+                grid-template-columns: 1fr;
+            }
+            .curso-sidebar {
+                display: none;
+            }
+            header {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+            .nav-links {
+                justify-content: center;
+            }
+            .curso-content {
+                padding: 22px 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="#" class="logo">
+            QUANTNEURAL.COM.BR
+            <span>Tecnologia & Educação Financeira Brasileira</span>
+        </a>
+        <nav class="nav-links">
+            <a href="#matematica">Matemática Financeira</a>
+            <a href="#curso-pro">Formação Profissional</a>
+            <a href="#ferramentas">Ecossistema</a>
+            <a href="#livros">Livros</a>
+            <a href="https://quantneural.ia.br" class="btn-plataforma" target="_blank" rel="noopener noreferrer">
+                Acessar Plataforma →
+            </a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="badge">DO ZERO AO NÍVEL PROFISSIONAL</span>
+        <h1>Educação Financeira & Inteligência Artificial na B3</h1>
+        <p>Aprenda a matemática real do dinheiro, entenda Selic, CDI, inflação e juros compostos, e construa uma carteira sólida com disciplina e processo — longe do ruído do mercado.</p>
+        <div class="hero-actions">
+            <a href="#matematica" class="btn-plataforma" style="background-color: #1f6feb; padding: 11px 20px; font-size: 14px;">1. Matemática Financeira</a>
+            <a href="#curso-pro" class="btn-outline" style="padding: 11px 20px; font-size: 14px;">2. Formação do Investidor Pro (10 Módulos)</a>
+        </div>
+    </section>
+
+    <!-- CURSO 1: MATEMÁTICA FINANCEIRA -->
+    <main class="container" id="matematica">
+        <div class="secao-titulo">
+            <div>
+                <span style="color: var(--accent-cyan);">CURSO 1:</span> Matemática Financeira para o Cidadão Comum
+            </div>
+            <span style="font-size: 13px; color: var(--accent-cyan); font-weight: normal;">Linguagem clara + exemplos reais</span>
+        </div>
+
+        <div class="curso-wrapper">
+            <aside class="curso-sidebar">
+                <h4 style="color: var(--accent-cyan);">Guia da Matemática</h4>
+                <ul>
+                    <li><a href="#math1">1. Valor do Dinheiro no Tempo</a></li>
+                    <li><a href="#math2">2. Juros Simples vs Compostos</a></li>
+                    <li><a href="#math3">3. Selic e CDI</a></li>
+                    <li><a href="#math4">4. Inflação e Ganho Real</a></li>
+                    <li><a href="#math5">5. Dividend Yield e Preço Teto</a></li>
+                    <li><a href="#math6">6. Simulador de Juros</a></li>
+                </ul>
+            </aside>
+
+            <div class="curso-content">
+                <div class="destaque-callout" style="margin-top: 0; border-left-color: var(--accent-cyan);">
+                    <strong>Por que a matemática financeira liberta?</strong> Quem não domina juros passa a vida pagando juros. Quem domina coloca os juros para trabalhar a seu favor, multiplicando patrimônio de forma silenciosa e consistente.
+                </div>
+
+                <!-- Aula 1 -->
+                <article class="modulo-bloco" id="math1">
+                    <span class="modulo-badge-math">Aula 1</span>
+                    <h3>O Valor do Dinheiro no Tempo</h3>
+                    <div class="sub-card">
+                        <h4>R$ 1.000 hoje vale mais que R$ 1.000 daqui a 1 ano?</h4>
+                        <p>Sim. O dinheiro tem <strong>custo de oportunidade</strong>. Existem duas forças principais:</p>
+                        <ul class="lista-check">
+                            <li><strong>Inflação</strong> — corroí o poder de compra.</li>
+                            <li><strong>Juros</strong> — se o dinheiro estiver investido, ele rende.</li>
+                        </ul>
+                        <p>Por isso, receber um valor hoje é matematicamente superior a receber o mesmo valor no futuro.</p>
+                        <div class="exemplo-box-cyan">
+                            <strong>Conceitos-chave:</strong><br>
+                            • <em>Valor Presente (VP)</em> → quanto vale hoje uma quantia futura.<br>
+                            • <em>Valor Futuro (VF)</em> → quanto seu dinheiro de hoje valerá após os juros.
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Aula 2 -->
+                <article class="modulo-bloco" id="math2">
+                    <span class="modulo-badge-math">Aula 2</span>
+                    <h3>Juros Simples vs. Juros Compostos</h3>
+                    <div class="sub-card">
+                        <h4>1. Juros Simples (crescimento linear)</h4>
+                        <p>Os juros incidem <strong>apenas sobre o capital inicial</strong>. O rendimento não se acumula para gerar novos juros.</p>
+                        <div class="formula-box">J = C × i × t &nbsp;&nbsp;|&nbsp;&nbsp; M = C + J</div>
+                        <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 8px;">Exemplo: R$ 10.000 a 10% a.a. em juros simples rende R$ 1.000 todo ano. Em 3 anos → R$ 13.000.</p>
+                    </div>
+                    <div class="sub-card">
+                        <h4>2. Juros Compostos (crescimento exponencial)</h4>
+                        <p>Os juros incidem sobre o <strong>capital + juros acumulados</strong> (“juros sobre juros”). No longo prazo a curva vira uma parábola ascendente — o verdadeiro motor da construção de riqueza.</p>
+                        <div class="formula-box">M = C × (1 + i)<sup>t</sup></div>
+                        <div class="exemplo-box-cyan">
+                            <strong>Comparação real em 30 anos (R$ 10.000 a 10% a.a.):</strong><br>
+                            • Juros Simples → <strong>R$ 40.000</strong><br>
+                            • Juros Compostos → <strong>R$ 174.494</strong> (mais de 4×)
+                        </div>
+                    </div>
+                    <div class="destaque-callout">
+                        <strong>Dica prática:</strong> Quanto mais cedo você começa e quanto mais tempo deixa o dinheiro trabalhando, maior o efeito dos juros compostos. Tempo é o maior aliado do investidor paciente.
+                    </div>
+                </article>
+
+                <!-- Aula 3 -->
+                <article class="modulo-bloco" id="math3">
+                    <span class="modulo-badge-math">Aula 3</span>
+                    <h3>Taxa Selic e CDI Descomplicados</h3>
+                    <div class="sub-card">
+                        <h4>O que é a Taxa Selic?</h4>
+                        <p>A <strong>Selic</strong> (Sistema Especial de Liquidação e de Custódia) é a taxa básica de juros da economia brasileira, definida a cada 45 dias pelo COPOM (Banco Central). É a taxa que o governo paga ao emitir títulos públicos (ex.: Tesouro Selic).</p>
+                        <p>Quando a Selic sobe → crédito fica mais caro (freia inflação) e a renda fixa rende mais. Quando cai → estimula a economia e os investidores tendem a migrar para a bolsa.</p>
+                    </div>
+                    <div class="sub-card">
+                        <h4>O que é o CDI?</h4>
+                        <p>Por regulação, nenhum banco pode terminar o dia com caixa negativo. Os bancos emprestam dinheiro entre si overnight. A taxa média desses empréstimos é o <strong>CDI</strong>, que anda colado na Selic (geralmente ~0,10 p.p. abaixo).</p>
+                        <div class="exemplo-box-cyan">
+                            <strong>Exemplo atualizado:</strong> Se a Selic Meta está em 11,25% a.a., o CDI costuma ficar em torno de 11,15% a.a. Um investimento que paga “100% do CDI” rende aproximadamente esse valor bruto.
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Aula 4 -->
+                <article class="modulo-bloco" id="math4">
+                    <span class="modulo-badge-math">Aula 4</span>
+                    <h3>Inflação (IPCA) e Rentabilidade Real</h3>
+                    <div class="sub-card">
+                        <h4>A armadilha da rentabilidade nominal</h4>
+                        <p>Se seu investimento rendeu 10% no ano (nominal) e a inflação (IPCA) foi 7%, seu ganho real <strong>não</strong> é 3% (10 − 7). O poder de compra da base também foi corroído.</p>
+                        <div class="formula-box">(1 + Taxa Real) = (1 + Taxa Nominal) / (1 + Inflação)</div>
+                        <div class="exemplo-box-cyan">
+                            <strong>Cálculo correto:</strong><br>
+                            (1 + 0,10) / (1 + 0,07) = 1,10 / 1,07 ≈ 1,0280 → <strong>Ganho Real de 2,80%</strong>.
+                        </div>
+                        <p style="margin-top: 12px;"><em>Regra de ouro:</em> só é enriquecimento o rendimento que supera a inflação.</p>
+                    </div>
+                </article>
+
+                <!-- Aula 5 -->
+                <article class="modulo-bloco" id="math5">
+                    <span class="modulo-badge-math">Aula 5</span>
+                    <h3>Dividend Yield e Preço Teto (Método Bazin)</h3>
+                    <div class="sub-card">
+                        <h4>Como calcular o preço máximo a pagar em uma ação ou FII</h4>
+                        <p>O método de Décio Bazin estabelece que um investidor focado em renda só deve comprar ativos que paguem, em média, pelo menos <strong>6% ao ano de dividendo líquido</strong>.</p>
+                        <div class="formula-box">Preço Teto = Dividendo Médio Anual por Ação ÷ 0,06</div>
+                        <div class="exemplo-box-cyan">
+                            <strong>Exemplo prático na B3:</strong><br>
+                            Empresa pagou em média R$ 1,80 de proventos por ação nos últimos 3 anos.<br>
+                            Preço Teto = 1,80 / 0,06 = <strong>R$ 30,00</strong>.<br>
+                            Se a cotação estiver abaixo de R$ 30,00, existe margem de segurança para dividendos.
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Simulador -->
+                <article class="modulo-bloco" id="math6">
+                    <span class="modulo-badge-math">Prática</span>
+                    <h3>Simulador Interativo de Juros Compostos</h3>
+                    <div class="calc-box">
+                        <div class="calc-grid">
+                            <div class="calc-input-group">
+                                <label>Capital Inicial (R$)</label>
+                                <input type="number" id="calcPrincipal" value="5000" min="0">
+                            </div>
+                            <div class="calc-input-group">
+                                <label>Aporte Mensal (R$)</label>
+                                <input type="number" id="calcAporte" value="500" min="0">
+                            </div>
+                            <div class="calc-input-group">
+                                <label>Taxa Anual (%)</label>
+                                <input type="number" id="calcTaxa" value="11" step="0.1" min="0">
+                            </div>
+                            <div class="calc-input-group">
+                                <label>Tempo (anos)</label>
+                                <input type="number" id="calcAnos" value="10" min="1">
+                            </div>
+                        </div>
+                        <button onclick="calcularJurosCompostos()" class="btn-plataforma" style="width: 100%; background-color: var(--accent-cyan); color: #000; font-weight: 700;">
+                            Calcular Acúmulo de Patrimônio
+                        </button>
+                        <div class="calc-result" id="resultadoCalculo">
+                            <div style="font-size: 13px; color: var(--text-muted);">Patrimônio Total Estimado:</div>
+                            <div class="calc-result-val" id="resTotal">R$ 115.820,30</div>
+                            <div style="font-size: 12.5px; color: var(--text-primary); margin-top: 8px;" id="resDetalhes">
+                                Total investido: R$ 65.000,00 | <strong>Juros ganhos: R$ 50.820,30</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">
+                        * Simulação aproximada com capitalização mensal. Não considera impostos nem taxas.
+                    </p>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <!-- CURSO 2: FORMAÇÃO DO INVESTIDOR PROFISSIONAL -->
+    <section class="container" id="curso-pro">
+        <div class="secao-titulo">
+            <div>
+                <span style="color: var(--accent-purple);">CURSO 2:</span> Formação do Investidor Profissional
+            </div>
+            <span style="font-size: 13px; color: var(--accent-purple); font-weight: normal;">10 Módulos • Governança, Risco & IA</span>
+        </div>
+
+        <div class="curso-wrapper">
+            <aside class="curso-sidebar">
+                <h4 style="color: var(--accent-purple);">Índice dos 10 Módulos</h4>
+                <ul>
+                    <li><a href="#mod1">1. Mentalidade Profissional</a></li>
+                    <li><a href="#mod2">2. Demonstrações Contábeis</a></li>
+                    <li><a href="#mod3">3. Três Pilares + IA</a></li>
+                    <li><a href="#mod4">4. Gestão de Risco</a></li>
+                    <li><a href="#mod5">5. Vieses Comportamentais</a></li>
+                    <li><a href="#mod6">6. Regra dos 12 Ativos</a></li>
+                    <li><a href="#mod7">7. Stack Quant & Python</a></li>
+                    <li><a href="#mod8">8. Certificações</a></li>
+                    <li><a href="#mod9">9. Roadmap de Execução</a></li>
+                    <li><a href="#mod10">10. Erros Fatais</a></li>
+                </ul>
+            </aside>
+
+            <div class="curso-content">
+
+                <!-- Módulo 1 -->
+                <article class="modulo-bloco" id="mod1">
+                    <span class="modulo-badge">Módulo 1</span>
+                    <h3>Mentalidade do Investidor Profissional</h3>
+                    <div class="sub-card">
+                        <h4>1.1 Processo vs. Resultado (Viés de Desfecho)</h4>
+                        <p>O amador julga a qualidade da decisão pelo retorno imediato. O profissional entende que o mercado é estocástico: uma decisão bem fundamentada pode dar prejuízo no curto prazo por ruído, enquanto uma aposta ruim pode lucrar por sorte.</p>
+                        <p>O foco deve estar no <strong>processo</strong> (tese, risco, tamanho da posição, disciplina de saída), não no resultado de uma operação isolada.</p>
+                    </div>
+                    <div class="sub-card">
+                        <h4>1.2 Expectativa Matemática Positiva (EV+)</h4>
+                        <p>Não é necessário acertar 90% das vezes. Um sistema com 40% de acerto e relação risco/retorno de 1:3 já gera riqueza de forma controlada no longo prazo.</p>
+                        <div class="exemplo-box">
+                            Exemplo: 10 operações → 4 ganhos de R$ 3 e 6 perdas de R$ 1 = lucro líquido de R$ 6.
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Módulo 2 -->
+                <article class="modulo-bloco" id="mod2">
+                    <span class="modulo-badge">Módulo 2</span>
+                    <h3>Demonstrações Contábeis & Macroeconomia</h3>
+                    <div class="sub-card">
+                        <h4>Balanço, DRE e DFC — o que realmente importa</h4>
+                        <p>Foque em três indicadores principais:</p>
+                        <ul class="lista-check">
+                            <li><strong>Fluxo de Caixa Livre (FCL)</strong> — capacidade real de gerar caixa após investimentos.</li>
+                            <li><strong>Dívida Líquida / EBITDA</strong> — idealmente abaixo de 2,5× na maioria dos setores.</li>
+                            <li><strong>ROIC</strong> (Retorno sobre o Capital Investido) — deve superar o custo de capital da empresa.</li>
+                        </ul>
+                        <p>Combine a análise micro (empresa) com a leitura macro (Selic, IPCA, crescimento do PIB e cenário global).</p>
+                    </div>
+                </article>
+
+                <!-- Módulo 3 -->
+                <article class="modulo-bloco" id="mod3">
+                    <span class="modulo-badge">Módulo 3</span>
+                    <h3>Os Três Pilares de Análise + Modelos com IA</h3>
+                    <div class="sub-card">
+                        <h4>Fundamentalista + Técnica + Quantitativa</h4>
+                        <p>Una:</p>
+                        <ul class="lista-check">
+                            <li>Valor intrínseco (Graham, Bazin, fluxo de caixa descontado)</li>
+                            <li>Leitura de volume e fluxo institucional</li>
+                            <li>Modelos quantitativos e de linguagem natural (ex.: BERT da Quant Neural) para monitorar sentimento sem viés humano</li>
+                        </ul>
+                        <div class="alerta-callout">
+                            <strong>Alerta Quant:</strong> Fuja do <em>overfitting</em> — modelos com 99% de acerto no passado que quebram em dados fora da amostra.
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Módulo 4 -->
+                <article class="modulo-bloco" id="mod4">
+                    <span class="modulo-badge">Módulo 4</span>
+                    <h3>Gestão de Risco e Position Sizing</h3>
+                    <div class="sub-card">
+                        <h4>Regra de ouro: 1% a 2% de risco máximo por operação</h4>
+                        <p>Nunca arrisque perder mais de 1–2% do patrimônio total em uma única operação. Se o patrimônio cair 50%, você precisará de +100% apenas para voltar ao ponto de equilíbrio.</p>
+                        <div class="exemplo-box">
+                            Patrimônio R$ 100.000 → risco máximo por trade: R$ 1.000 a R$ 2.000.<br>
+                            Calcule o tamanho da posição a partir do stop loss, não do “quanto você quer ganhar”.
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Módulo 5 -->
+                <article class="modulo-bloco" id="mod5">
+                    <span class="modulo-badge">Módulo 5</span>
+                    <h3>Psicologia & Vieses Comportamentais</h3>
+                    <div class="tabela-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Viés</th>
+                                    <th>Comportamento Amador</th>
+                                    <th>Regra do Profissional</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Aversão à Perda</strong></td>
+                                    <td>Segura ação que perdeu fundamentos esperando empatar</td>
+                                    <td>Execução mecânica de stop e realocação</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>FOMO</strong></td>
+                                    <td>Compra ativos que já subiram 80–100% por euforia</td>
+                                    <td>Compra assimetrias na baixa e espera a valorização</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Ancoragem</strong></td>
+                                    <td>Fica preso ao preço de compra</td>
+                                    <td>Reavalia a tese com dados novos, independente do preço pago</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Confirmação</strong></td>
+                                    <td>Só lê notícias que reforçam a posição</td>
+                                    <td>Busca ativamente argumentos contrários</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+
+                <!-- Módulo 6 -->
+                <article class="modulo-bloco" id="mod6">
+                    <span class="modulo-badge">Módulo 6</span>
+                    <h3>Regra dos 12 Ativos & Rebalanceamento</h3>
+                    <div class="sub-card">
+                        <h4>Concentração inteligente</h4>
+                        <p>Concentre entre 8 e 12 ativos de alta qualidade. Mais do que isso dilui o retorno e dificulta o acompanhamento profundo. Menos do que isso aumenta o risco específico.</p>
+                        <p><strong>Rebalanceamento disciplinado:</strong> faça aportes mensais preferencialmente nos ativos que estão abaixo do peso-alvo da carteira. Assim você compra mais barato de forma automática e evita o viés de “comprar o que já subiu”.</p>
+                    </div>
+                </article>
+
+                <!-- Módulo 7 -->
+                <article class="modulo-bloco" id="mod7">
+                    <span class="modulo-badge">Módulo 7</span>
+                    <h3>Stack Quant & Python para Investidores</h3>
+                    <div class="sub-card">
+                        <h4>Ferramentas mínimas de um investidor quant</h4>
+                        <ul class="lista-check">
+                            <li>Python + pandas + numpy para análise de dados</li>
+                            <li>Bibliotecas de dados de mercado (yfinance, investpy, APIs da B3 quando disponíveis)</li>
+                            <li>Backtesting simples com regras claras de entrada/saída</li>
+                            <li>Processamento de linguagem natural para sentimento de notícias e relatórios</li>
+                        </ul>
+                        <p>O objetivo não é criar o “modelo perfeito”, mas ter um processo repetível, auditável e livre de emoção excessiva.</p>
+                    </div>
+                </article>
+
+                <!-- Módulo 8 -->
+                <article class="modulo-bloco" id="mod8">
+                    <span class="modulo-badge">Módulo 8</span>
+                    <h3>Certificações Relevantes (CEA / CNPI / CPA)</h3>
+                    <div class="sub-card">
+                        <h4>Por que se certificar?</h4>
+                        <p>As certificações da ANBIMA e da APIMEC (CEA, CNPI, CPA-20, etc.) não garantem retorno, mas estruturam conhecimento, abrem portas profissionais e forçam disciplina de estudo.</p>
+                        <p>Para o investidor individual, o maior valor está no processo de preparação: contabilidade, análise fundamentalista, produtos de investimento e ética.</p>
+                    </div>
+                </article>
+
+                <!-- Módulo 9 -->
+                <article class="modulo-bloco" id="mod9">
+                    <span class="modulo-badge">Módulo 9</span>
+                    <h3>Roadmap de Execução (90 dias)</h3>
+                    <div class="sub-card">
+                        <h4>Plano prático para sair do amadorismo</h4>
+                        <ul class="lista-check">
+                            <li><strong>Dias 1–30:</strong> Domine a matemática financeira + monte sua planilha de acompanhamento.</li>
+                            <li><strong>Dias 31–60:</strong> Defina política de investimento (alocação, risco máximo, critérios de compra/venda).</li>
+                            <li><strong>Dias 61–90:</strong> Execute com disciplina, registre todas as decisões e revise mensalmente o processo (não só o resultado).</li>
+                        </ul>
+                    </div>
+                </article>
+
+                <!-- Módulo 10 -->
+                <article class="modulo-bloco" id="mod10">
+                    <span class="modulo-badge">Módulo 10</span>
+                    <h3>Erros Fatais que Destruem Patrimônio</h3>
+                    <div class="sub-card">
+                        <h4>Os mais comuns (e caros)</h4>
+                        <ul class="lista-check">
+                            <li>Operar sem stop loss definido</li>
+                            <li>Aumentar posição em ativo que já está perdendo (averaging down sem tese)</li>
+                            <li>Concentrar demais em uma única ideia ou setor</li>
+                            <li>Mudar de estratégia a cada 2 meses</li>
+                            <li>Ignorar impostos, custos e impacto da inflação</li>
+                            <li>Confiar cegamente em “dicas” de redes sociais</li>
+                        </ul>
+                        <div class="alerta-callout">
+                            <strong>Lembrete final:</strong> O mercado recompensa processo, paciência e gestão de risco. Velocidade e ego destroem contas.
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Ecossistema -->
+    <section class="container" id="ferramentas">
+        <h2 class="secao-titulo"><span>Ecossistema Quant Neural</span></h2>
+        <div class="grid-artigos">
+            <article class="card-artigo">
+                <div class="card-conteudo">
+                    <span class="card-tag">TUTORIAL</span>
+                    <h3>Como Interpretar os Cards do Quant Neural</h3>
+                    <p>Entenda o Score Semântico do BERT, a Polaridade Dominante e como calibrar o preço teto das suas ações e FIIs.</p>
+                    <a href="https://quantneural.ia.br" target="_blank" class="card-link">Ver na Plataforma →</a>
+                </div>
+            </article>
+            <article class="card-artigo" style="border-color: rgba(88, 166, 255, 0.5);">
+                <div class="card-conteudo">
+                    <span class="card-tag" style="background-color: rgba(88, 166, 255, 0.15); color: var(--accent-blue);">HARDWARE WALLET</span>
+                    <h3>Sincronizar Aura Wallet QN</h3>
+                    <p>Conecte sua carteira física de forma 100% offline e segura via criptografia visual (Air-Gapped) com QR Code.</p>
+                    <button onclick="abrirModoConexao()" class="btn-plataforma" style="width: 100%; background-color: #1f6feb; margin-top: 8px;">
+                        Conectar Dispositivo Físico
+                    </button>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- Livros -->
+    <section class="container" id="livros">
+        <h2 class="secao-titulo"><span>Livros do Autor</span></h2>
+        <div class="grid-artigos">
+            <article class="card-artigo" style="border-color: rgba(35, 134, 54, 0.6);">
+                <div class="card-conteudo">
+                    <span class="card-tag" style="background-color: rgba(46, 160, 67, 0.15); color: #2ea043;">LIVRO DIGITAL</span>
+                    <h3>Inteligência Artificial no Mercado de Investimentos — Vol. 1</h3>
+                    <p>Fundamentos de algoritmos preditivos, redes neurais e análise prática de ativos na B3 para investidores individuais.</p>
+                    <form class="form-captura" action="#" method="POST" id="formLivro">
+                        <input type="text" name="name" class="input-captura" placeholder="Seu primeiro nome" required>
+                        <input type="email" name="email" class="input-captura" placeholder="Seu melhor e-mail" required>
+                        <label class="container-lgpd">
+                            <input type="checkbox" name="consentment" class="checkbox-lgpd" required>
+                            <span class="texto-lgpd">Aceito receber o livro digital e comunicações da Quant Neural.</span>
+                        </label>
+                        <button type="submit" class="btn-plataforma" style="margin-top: 4px; width: 100%;">Receber Livro com Segurança</button>
+                        <p class="aviso-legal">Tratamos seus dados com base na Lei Geral de Proteção de Dados (Lei nº 13.709/18).</p>
+                    </form>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- Modal QR -->
+    <div id="modalAura" class="modal-carteira">
+        <div class="conteudo-modal">
+            <h3 style="color: #ffffff; margin-top: 0;">Sincronização Criptográfica</h3>
+            <p style="color: var(--text-muted); font-size: 14px;">Aponte o QR Code gerado no seu dispositivo para a câmera para autenticar de forma offline.</p>
+            <div id="reader"></div>
+            <button onclick="fecharModoConexao()" style="background-color: var(--border-color); color: var(--text-primary); border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; margin-top: 14px; width: 100%; font-weight: 600;">
+                Cancelar Conexão
+            </button>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 Quant Neural. Inteligência Artificial e Educação Financeira para o Brasil — Desenvolvedor Rondinelli Alves de Andrade.</p>
+    </footer>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+        function calcularJurosCompostos() {
+            const P = parseFloat(document.getElementById('calcPrincipal').value) || 0;
+            const PMT = parseFloat(document.getElementById('calcAporte').value) || 0;
+            const rAnual = parseFloat(document.getElementById('calcTaxa').value) || 0;
+            const anos = parseFloat(document.getElementById('calcAnos').value) || 0;
+            const n = anos * 12;
+            const iMensal = Math.pow(1 + (rAnual / 100), 1 / 12) - 1;
+
+            let total = P * Math.pow(1 + iMensal, n);
+            if (iMensal > 0) {
+                total += PMT * ((Math.pow(1 + iMensal, n) - 1) / iMensal);
+            } else {
+                total += PMT * n;
+            }
+
+            const totalInvestido = P + (PMT * n);
+            const jurosGanhos = total - totalInvestido;
+
+            const formatBRL = (val) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            document.getElementById('resTotal').innerText = formatBRL(total);
+            document.getElementById('resDetalhes').innerHTML =
+                `Total investido: ${formatBRL(totalInvestido)} | <strong style="color: #7ee787;">Juros ganhos: ${formatBRL(jurosGanhos)}</strong>`;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            calcularJurosCompostos();
+        });
+
+        let leitorQrCode = null;
+        function abrirModoConexao() {
+            document.getElementById('modalAura').style.display = 'flex';
+            leitorQrCode = new Html5QrcodeScanner("reader", { fps: 15, qrbox: 250 });
+            leitorQrCode.render((textoDecodificado) => {
+                alert("Conexão estabelecida com sucesso com a Aura Wallet!");
+                leitorQrCode.clear();
+                window.location.href = "https://quantneural.ia.br/dashboard?wallet=" + encodeURIComponent(textoDecodificado);
+            }, () => {});
+        }
+
+        function fecharModoConexao() {
+            if (leitorQrCode) {
+                leitorQrCode.clear().catch(err => console.error("Erro ao fechar:", err));
+            }
+            document.getElementById('modalAura').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
