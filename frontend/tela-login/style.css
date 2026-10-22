@@ -1,0 +1,101 @@
+:root {
+  --ink: #2b2b2b;
+  --paper: #ffffff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Patrick Hand', 'Comic Sans MS', cursive, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 460px;
+  padding: 32px 28px;
+}
+
+.title {
+  text-align: center;
+  font-size: 15px;
+  letter-spacing: 1px;
+  margin: 0 0 28px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+/* Hand-drawn circle logo */
+.logo {
+  width: 92px;
+  height: 92px;
+  margin: 0 auto 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2.5px solid var(--ink);
+  /* irregular radius = wobbly hand-drawn circle */
+  border-radius: 48% 52% 50% 50% / 51% 49% 52% 48%;
+  transform: rotate(-3deg);
+  font-size: 46px;
+  line-height: 1;
+}
+
+.field { margin-bottom: 22px; }
+
+label {
+  display: block;
+  font-size: 15px;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+input[type="text"],
+input[type="password"] {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 16px;
+  color: var(--ink);
+  background: transparent;
+  border: 2px solid var(--ink);
+  /* irregular radius = wobbly hand-drawn box */
+  border-radius: 255px 12px 225px 12px / 12px 225px 12px 255px;
+  outline: none;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+  box-shadow: 0 0 0 2px rgba(43,43,43,.12);
+}
+
+.actions {
+  text-align: center;
+  margin-top: 30px;
+}
+
+button {
+  font-family: inherit;
+  font-size: 15px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: transparent;
+  border: 2px solid var(--ink);
+  padding: 10px 26px;
+  cursor: pointer;
+  /* irregular radius = wobbly hand-drawn pill */
+  border-radius: 200px 18px 200px 18px / 18px 200px 18px 200px;
+  transition: background .15s ease, transform .05s ease;
+}
+
+button:hover { background: rgba(43,43,43,.06); }
+button:active { transform: translateY(1px); }
