@@ -1,0 +1,182 @@
+:root {
+  --ink: #2b2b2b;
+  --paper: #ffffff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Patrick Hand', 'Comic Sans MS', cursive, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 760px;
+  padding: 32px 28px;
+}
+
+.title {
+  text-align: center;
+  font-size: 15px;
+  letter-spacing: 1px;
+  margin: 0 0 28px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+/* ---------- Top bar ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 36px;
+}
+
+.avatar {
+  flex: 0 0 auto;
+  width: 84px;
+  height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2.5px solid var(--ink);
+  border-radius: 48% 52% 50% 50% / 51% 49% 52% 48%;
+  transform: rotate(-3deg);
+}
+
+.avatar svg { width: 56px; height: 56px; }
+
+.level { flex: 1 1 auto; min-width: 0; }
+
+.level-label {
+  display: block;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* Hand-drawn progress track with crosshatch fill */
+.progress {
+  position: relative;
+  height: 30px;
+  border: 2.5px solid var(--ink);
+  border-radius: 200px 14px 200px 14px / 14px 200px 14px 200px;
+  overflow: hidden;
+}
+
+.progress .fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 50%;
+  background-image:
+    repeating-linear-gradient(45deg,  var(--ink) 0 1px, transparent 1px 6px),
+    repeating-linear-gradient(-45deg, var(--ink) 0 1px, transparent 1px 6px);
+}
+
+.money {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.coin {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2.5px solid var(--ink);
+  border-radius: 48% 52% 50% 50% / 51% 49% 52% 48%;
+  transform: rotate(3deg);
+  font-size: 26px;
+  line-height: 1;
+}
+
+.amount { font-size: 30px; line-height: 1; }
+
+/* ---------- Main grid ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px 12px;
+  text-decoration: none;
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  /* wobbly hand-drawn box */
+  border-radius: 255px 12px 225px 12px / 12px 225px 12px 255px;
+  transition: background .15s ease, transform .05s ease;
+}
+
+.tile svg { width: 40px; height: 40px; }
+
+.tile span {
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.tile:hover { background: rgba(43,43,43,.06); }
+.tile:active { transform: translateY(1px); }
+
+/* ---------- Missions ---------- */
+.missions-title {
+  font-size: 15px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 400;
+  margin: 0 0 16px;
+}
+
+.mission-list { list-style: none; margin: 0; padding: 0; }
+
+.mission {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border: 2px solid var(--ink);
+  /* wobbly hand-drawn pill */
+  border-radius: 200px 18px 200px 18px / 18px 200px 18px 200px;
+  font-size: 15px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.mission + .mission { margin-top: 18px; }
+
+.mission svg { width: 26px; height: 26px; flex: 0 0 auto; }
+
+/* SVG stroke styling (hand-drawn line look) */
+svg { fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 640px) {
+  .topbar { flex-wrap: wrap; justify-content: center; gap: 18px; }
+  .level { order: 3; flex-basis: 100%; }
+  .grid { grid-template-columns: 1fr; }
+}
