@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tela de Dashboard - Painel do Professor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="card">
+    <h1 class="title">Painel do Professor</h1>
+
+    <div class="dashboard">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="avatar" aria-hidden="true">
+          <svg viewBox="0 0 100 100" width="56" height="56" fill="none"
+               stroke="currentColor" stroke-width="3.5" stroke-linecap="round">
+            <circle cx="50" cy="34" r="16" />
+            <path d="M22 84c0-18 12-28 28-28s28 10 28 28" />
+          </svg>
+        </div>
+
+        <nav class="nav">
+          <button type="button" class="nav-btn active">Turmas</button>
+          <button type="button" class="nav-btn">Relatórios</button>
+          <button type="button" class="nav-btn">Missões</button>
+        </nav>
+      </aside>
+
+      <!-- Content -->
+      <section class="content">
+        <div class="table-frame">
+            <table class="data-table">
+            <thead>
+                <tr>
+                <th>Aluno</th>
+                <th>Nível</th>
+                <th>Detalhes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                <td>Enzo</td>
+                <td>I</td>
+                <td>2 missões</td>
+                </tr>
+                <tr>
+                <td>Valentina</td>
+                <td>2</td>
+                <td>4 missões</td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
+
+        <div class="actions">
+            <button type="button" class="btn-export">Exportar dados</button>
+        </div>
+    </section>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,172 @@
+:root {
+  --ink: #2b2b2b;
+  --paper: #ffffff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Patrick Hand', 'Comic Sans MS', cursive, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 760px;
+  padding: 32px 28px;
+}
+
+.title {
+  text-align: center;
+  font-size: 15px;
+  letter-spacing: 1px;
+  margin: 0 0 28px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+/* Two-column layout: sidebar + content */
+.dashboard {
+  display: flex;
+  gap: 36px;
+  align-items: flex-start;
+}
+
+.sidebar {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+.content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Hand-drawn circle avatar */
+.avatar {
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2.5px solid var(--ink);
+  /* irregular radius = wobbly hand-drawn circle */
+  border-radius: 48% 52% 50% 50% / 51% 49% 52% 48%;
+  transform: rotate(-3deg);
+  color: var(--ink);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Hand-drawn nav buttons */
+.nav-btn {
+  font-family: inherit;
+  font-size: 15px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: transparent;
+  border: 2px solid var(--ink);
+  padding: 10px 26px;
+  cursor: pointer;
+  /* irregular radius = wobbly hand-drawn pill */
+  border-radius: 200px 18px 200px 18px / 18px 200px 18px 200px;
+  transition: background .15s ease, transform .05s ease;
+}
+
+.nav-btn:hover { background: rgba(43,43,43,.06); }
+.nav-btn:active { transform: translateY(1px); }
+
+/* Active tab = thicker "double line" look */
+.nav-btn.active {
+  border-width: 3px;
+  box-shadow: inset 0 0 0 1px rgba(43,43,43,.25);
+}
+
+/* Wobbly hand-drawn frame (normal block → corners clip cleanly) */
+.table-frame {
+  border: 2px solid var(--ink);
+  /* irregular radius = wobbly hand-drawn box */
+  border-radius: 255px 12px 225px 12px / 12px 225px 12px 255px;
+  overflow: hidden;
+}
+
+/* Inner table draws ONLY the internal grid lines */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+
+.data-table th,
+.data-table td {
+  padding: 12px 14px;
+  text-align: left;
+  /* internal vertical divider */
+  border-right: 2px solid var(--ink);
+  /* internal horizontal divider */
+  border-bottom: 2px solid var(--ink);
+}
+
+/* no extra line on the last column / last row (the frame covers them) */
+.data-table th:last-child,
+.data-table td:last-child {
+  border-right: none;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table thead th {
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: rgba(43,43,43,.04);
+}
+
+/* Export button (same style as nav buttons) */
+.actions {
+  text-align: right;
+  margin-top: 30px;
+}
+
+.btn-export {
+  font-family: inherit;
+  font-size: 15px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: transparent;
+  border: 2px solid var(--ink);
+  padding: 10px 26px;
+  cursor: pointer;
+  border-radius: 200px 18px 200px 18px / 18px 200px 18px 200px;
+  transition: background .15s ease, transform .05s ease;
+}
+
+.btn-export:hover { background: rgba(43,43,43,.06); }
+.btn-export:active { transform: translateY(1px); }
+
+/* Keep it readable on small screens */
+@media (max-width: 560px) {
+  .dashboard { flex-direction: column; align-items: stretch; }
+  .sidebar { flex-direction: row; align-items: center; justify-content: space-between; }
+  .nav { flex-direction: row; flex-wrap: wrap; }
+  .actions { text-align: left; }
+}
