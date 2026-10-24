@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import {
   Router,
   RouterLink,
@@ -33,12 +33,19 @@ interface TeacherLink {
   templateUrl: './teacher-shell.html',
   styleUrl: './teacher-shell.css',
 })
-export class TeacherShell {
+export class TeacherShell implements OnInit {
   private readonly data = inject(DataService);
   private readonly sessions = inject(SessionService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   protected readonly context = inject(TeacherContextService);
+
+  ngOnInit(): void {
+    const session = this.sessions.session();
+    if (session) {
+      this.data.loadForSession(session).subscribe();
+    }
+  }
 
   protected readonly teacher = computed(() =>
     this.data.teacherById(this.sessions.session()?.teacherId),

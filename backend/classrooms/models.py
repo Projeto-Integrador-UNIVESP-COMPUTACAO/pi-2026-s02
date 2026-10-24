@@ -4,6 +4,8 @@ from django.db import models
 
 class Classroom(models.Model):
     name = models.CharField(max_length=150)
+    grade = models.CharField(max_length=30, blank=True)
+    school = models.CharField(max_length=150, blank=True)
 
     teacher = models.ForeignKey(
         settings.AUTH_USER_MODEL,

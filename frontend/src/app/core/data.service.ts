@@ -1,82 +1,345 @@
+import { HttpClient } from '@angular/common/http';
 import {
   Injectable,
   PLATFORM_ID,
-  afterNextRender,
   inject,
   signal,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import {
+  Observable,
+  catchError,
+  forkJoin,
+  map,
+  of,
+  switchMap,
+  tap,
+} from 'rxjs';
+import {
   ACTIVITIES,
   BADGES,
   CLASSES,
-  SEED_PROGRESS,
   STUDENTS,
   TEACHERS,
 } from './seed';
+import { API_BASE } from './api';
 import { levelForXp, starsForScore } from './gamification';
 import type {
   Activity,
+  ActivityKind,
   AttemptLog,
   Badge,
   ClassGroup,
   CompletionOutcome,
+  IconName,
   MissionView,
   ProgressRecord,
   RankingEntry,
+  SkillCode,
   Student,
   Teacher,
 } from './models';
 
-interface PersistedData {
-  version: number;
-  savedAt: string;
-  students: Student[];
-  progress: ProgressRecord[];
+interface ApiClassroom {
+  id: number;
+  name: string;
+  grade: string;
+  school: string;
+  teacher_id: number;
 }
 
-const STORAGE_KEY = 'educa.data.v1';
-const DATA_VERSION = 1;
-
-function cloneProgress(records: ProgressRecord[]): ProgressRecord[] {
-  return records.map((record) => ({
-    ...record,
-    history: record.history.map((entry) => ({ ...entry })),
-  }));
+interface ApiStudent {
+  id: string | number;
+  name: string;
+  classId?: string | number | null;
+  classroom_id?: number | null;
+  coins: number;
+  joinedAt?: string;
+  joined_at?: string;
 }
 
-function cloneStudents(students: Student[]): Student[] {
-  return students.map((student) => ({ ...student }));
+interface ApiProgress {
+  studentId: string;
+  activityId: string;
+  bestScore: number;
+  attempts: number;
+  errors: number;
+  passed: boolean;
+  coinsAwarded: boolean;
+  lastAt: string;
+  history: AttemptLog[];
+}
+
+interface ApiUser {
+  id: number;
+  name: string;
+  email: string;
+  role: 'TEACHER' | 'STUDENT';
+  classroom_id: number | null;
+  coins: number;
+  joined_at: string;
+  classroom: ApiClassroom | null;
+}
+
+interface ApiClassroomProgress {
+  classroom: ApiClassroom;
+  students: ApiStudent[];
+  progress: ApiProgress[];
+}
+
+interface ApiQuestion {
+  id: string;
+  kind: 'numeric' | 'choice';
+  prompt: string;
+  scenario?: string;
+  table?: { label: string; value: string; emphasis?: boolean }[];
+  options?: { id: string; label: string; detail?: string }[];
+  answer: number | string;
+  tolerance?: number;
+  unit?: 'brl' | 'weeks' | 'percent' | 'none';
+  explanation: string;
+  hint?: string;
+}
+
+interface ApiActivity {
+  id: string;
+  title: string;
+  tagline: string;
+  description: string;
+  kind: ActivityKind;
+  icon: string;
+  skills: SkillCode[];
+  gradeLabel: string;
+  difficulty: number;
+  estimatedMinutes: number;
+  rewardCoins: number;
+  badgeId: string;
+  questions: ApiQuestion[];
+}
+
+function toStudent(dto: ApiStudent, fallbackClassId = ''): Student {
+  const rawClass = dto.classId ?? dto.classroom_id;
+  return {
+    id: String(dto.id),
+    name: dto.name,
+    classId: rawClass === null || rawClass === undefined ? fallbackClassId : String(rawClass),
+    coins: dto.coins ?? 0,
+    joinedAt: dto.joinedAt ?? dto.joined_at ?? new Date().toISOString(),
+  };
+}
+
+function toProgress(dto: ApiProgress): ProgressRecord {
+  return {
+    studentId: String(dto.studentId),
+    activityId: dto.activityId,
+    bestScore: dto.bestScore,
+    attempts: dto.attempts,
+    errors: dto.errors,
+    passed: dto.passed,
+    coinsAwarded: dto.coinsAwarded,
+    lastAt: dto.lastAt,
+    history: Array.isArray(dto.history) ? dto.history : [],
+  };
+}
+
+function toClassroom(dto: ApiClassroom): ClassGroup {
+  return {
+    id: String(dto.id),
+    name: dto.name,
+    grade: dto.grade,
+    school: dto.school,
+    teacherId: String(dto.teacher_id),
+  };
+}
+
+function toActivity(dto: ApiActivity): Activity {
+  return {
+    id: dto.id,
+    title: dto.title,
+    tagline: dto.tagline ?? '',
+    description: dto.description ?? '',
+    kind: dto.kind,
+    icon: (dto.icon || 'flag') as IconName,
+    skills: dto.skills ?? [],
+    gradeLabel: dto.gradeLabel ?? '',
+    difficulty: (dto.difficulty >= 1 && dto.difficulty <= 3
+      ? dto.difficulty
+      : 1) as 1 | 2 | 3,
+    estimatedMinutes: dto.estimatedMinutes ?? 5,
+    rewardCoins: dto.rewardCoins ?? 0,
+    badgeId: dto.badgeId ?? '',
+    questions: (dto.questions ?? []).map((question) => ({
+      id: question.id,
+      kind: question.kind,
+      prompt: question.prompt,
+      scenario: question.scenario,
+      table: question.table,
+      options: question.options,
+      answer: question.answer,
+      tolerance: question.tolerance,
+      unit: question.unit,
+      explanation: question.explanation,
+      hint: question.hint,
+    })),
+  };
 }
 
 /**
- * Camada de dados simulada.
+ * Camada de dados da plataforma.
  *
- * Ela imita o contrato que será exposto pelo backend Django/PostgreSQL:
- * alunos, atividades, tentativas e progresso. Para integrar a API real,
- * troque os métodos de leitura/escrita por chamadas HttpClient mantendo
- * os mesmos modelos e os componentes não precisam mudar.
+ * Os dados de atividades, alunos, turmas e progresso vêm da API
+ * Django/PostgreSQL. As constantes de `seed.ts` permanecem apenas como
+ * fallback visual caso a API esteja indisponível durante o desenvolvimento.
  */
 @Injectable({ providedIn: 'root' })
 export class DataService {
+  private readonly http = inject(HttpClient);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
-  readonly activities: readonly Activity[] = ACTIVITIES;
+  private readonly _activities = signal<readonly Activity[]>(ACTIVITIES);
+  private readonly _classes = signal<readonly ClassGroup[]>(CLASSES);
+  private readonly _teachers = signal<readonly Teacher[]>(TEACHERS);
+  private readonly _students = signal<Student[]>(
+    STUDENTS.map((student) => ({ ...student })),
+  );
+  private readonly _progress = signal<ProgressRecord[]>(
+    [] as ProgressRecord[],
+  );
+
+  get activities(): readonly Activity[] {
+    return this._activities();
+  }
   readonly badges: readonly Badge[] = BADGES;
-  readonly classes: readonly ClassGroup[] = CLASSES;
-  readonly teachers: readonly Teacher[] = TEACHERS;
-
-  private readonly _students = signal<Student[]>(cloneStudents(STUDENTS));
-  private readonly _progress = signal<ProgressRecord[]>(cloneProgress(SEED_PROGRESS));
-
+  readonly classes = this._classes.asReadonly();
+  readonly teachers = this._teachers.asReadonly();
   readonly students = this._students.asReadonly();
   readonly progress = this._progress.asReadonly();
 
-  constructor() {
-    if (this.isBrowser) {
-      afterNextRender(() => this.loadPersistedData());
-    }
+  private loadedFor: string | null = null;
+  private loadingFor: string | null = null;
+
+  // ---------------------------------------------------------------- carregamento
+
+  /** Carrega os dados do usuário autenticado a partir da API. */
+  loadForSession(session: {
+    userId: string;
+    role: 'student' | 'teacher';
+    displayName: string;
+  }): Observable<void> {
+    if (!this.isBrowser) return of(undefined);
+    if (this.loadedFor === session.userId) return of(undefined);
+    if (this.loadingFor === session.userId) return of(undefined);
+
+    this.loadingFor = session.userId;
+
+    return this.http.get<ApiActivity[]>(`${API_BASE}/content/activities/`).pipe(
+      catchError(() => of([] as ApiActivity[])),
+      tap((activities) => {
+        if (activities.length > 0) {
+          this._activities.set(activities.map(toActivity));
+        }
+      }),
+      switchMap(() =>
+        session.role === 'student'
+          ? this.loadStudent()
+          : this.loadTeacher(session.userId, session.displayName),
+      ),
+      tap(() => {
+        this.loadedFor = session.userId;
+        this.loadingFor = null;
+      }),
+      map(() => undefined),
+      catchError(() => {
+        // Sem API, a interface segue com os dados de demonstração.
+        this.loadingFor = null;
+        return of(undefined);
+      }),
+    );
+  }
+
+  private loadStudent(): Observable<void> {
+    return this.http.get<ApiUser>(`${API_BASE}/users/me/`).pipe(
+      switchMap((user) => {
+        if (!user.classroom_id) {
+          return of({ user, data: null as ApiClassroomProgress | null });
+        }
+        return this.http
+          .get<ApiClassroomProgress>(
+            `${API_BASE}/progress/classroom/${user.classroom_id}/`,
+          )
+          .pipe(map((data) => ({ user, data })));
+      }),
+      map(({ user, data }) => {
+        if (user.classroom) {
+          this._classes.set([toClassroom(user.classroom)]);
+        }
+        if (data) {
+          this._students.set(
+            data.students.map((student) => toStudent(student)),
+          );
+          this._progress.set(data.progress.map(toProgress));
+        } else {
+          this._students.set([
+            toStudent({
+              id: user.id,
+              name: user.name,
+              classroom_id: user.classroom_id,
+              coins: user.coins,
+              joined_at: user.joined_at,
+            }),
+          ]);
+          this._progress.set([]);
+        }
+      }),
+    );
+  }
+
+  private loadTeacher(teacherId: string, displayName: string): Observable<void> {
+    return this.http
+      .get<ApiClassroom[]>(`${API_BASE}/classrooms/mine/`)
+      .pipe(
+        switchMap((classrooms) => {
+          const groups = classrooms.map(toClassroom);
+          this._classes.set(groups);
+          this._teachers.set([
+            {
+              id: teacherId,
+              name: displayName,
+              title: 'Professor(a)',
+              classIds: groups.map((group) => group.id),
+            },
+          ]);
+
+          if (classrooms.length === 0) {
+            this._students.set([]);
+            this._progress.set([]);
+            return of(undefined);
+          }
+
+          return forkJoin(
+            classrooms.map((classroom) =>
+              this.http.get<ApiClassroomProgress>(
+                `${API_BASE}/progress/classroom/${classroom.id}/`,
+              ),
+            ),
+          ).pipe(
+            map((results) => {
+              const students = new Map<string, Student>();
+              const progress: ProgressRecord[] = [];
+              results.forEach((result) => {
+                result.students.forEach((student) =>
+                  students.set(String(student.id), toStudent(student)),
+                );
+                progress.push(...result.progress.map(toProgress));
+              });
+              this._students.set([...students.values()]);
+              this._progress.set(progress);
+            }),
+            map(() => undefined),
+          );
+        }),
+      );
   }
 
   // ---------------------------------------------------------------- leituras
@@ -88,23 +351,25 @@ export class DataService {
 
   activityById(activityId: string | undefined | null): Activity | undefined {
     if (!activityId) return undefined;
-    return this.activities.find((activity) => activity.id === activityId);
+    return this._activities().find((activity) => activity.id === activityId);
   }
 
   classById(classId: string | undefined | null): ClassGroup | undefined {
     if (!classId) return undefined;
-    return this.classes.find((group) => group.id === classId);
+    return this._classes().find((group) => group.id === classId);
   }
 
   teacherById(teacherId: string | undefined | null): Teacher | undefined {
     if (!teacherId) return undefined;
-    return this.teachers.find((teacher) => teacher.id === teacherId);
+    return this._teachers().find((teacher) => teacher.id === teacherId);
   }
 
   classesForTeacher(teacherId: string | undefined | null): ClassGroup[] {
     const teacher = this.teacherById(teacherId);
     if (!teacher) return [];
-    return this.classes.filter((group) => teacher.classIds.includes(group.id));
+    return this._classes().filter((group) =>
+      teacher.classIds.includes(group.id),
+    );
   }
 
   studentsInClass(classId: string | undefined | null): Student[] {
@@ -161,7 +426,7 @@ export class DataService {
   }
 
   missionsFor(studentId: string): MissionView[] {
-    return this.activities.map((activity) => {
+    return this._activities().map((activity) => {
       const record = this.recordFor(studentId, activity.id);
       return {
         activity,
@@ -210,7 +475,7 @@ export class DataService {
         case 'any':
           return passedIds.size > 0;
         case 'all':
-          return passedIds.size === this.activities.length;
+          return passedIds.size === this._activities().length;
         case 'level':
           return level >= badge.criterion.level;
         default:
@@ -222,8 +487,8 @@ export class DataService {
   // --------------------------------------------------------------- escritas
 
   /**
-   * Registra uma tentativa. Moedas são concedidas apenas na primeira
-   * conclusão de cada missão; o XP usa o melhor resultado por missão.
+   * Registra uma tentativa localmente e persiste na API.
+   * Moedas são concedidas apenas na primeira conclusão de cada missão.
    */
   recordAttempt(
     studentId: string,
@@ -292,12 +557,12 @@ export class DataService {
       );
     }
 
+    this.persistAttempt(studentId, activityId, score, errors, passed);
+
     const xpAfter = this.xpFor(studentId);
     const levelAfter = levelForXp(xpAfter);
     const earnedAfter = this.badgesFor(studentId);
     const newBadges = earnedAfter.filter((badge) => !earnedBefore.has(badge.id));
-
-    this.persist();
 
     return {
       score,
@@ -312,66 +577,38 @@ export class DataService {
     };
   }
 
-  /** Restaura os dados de demonstração e limpa o armazenamento local. */
+  private persistAttempt(
+    studentId: string,
+    activityId: string,
+    score: number,
+    errors: number,
+    passed: boolean,
+  ): void {
+    if (!this.isBrowser) return;
+
+    this.http
+      .post<ApiProgress & { coins: number; coinsGain: number }>(
+        `${API_BASE}/progress/attempt/`,
+        { activityId, score, errors, passed },
+      )
+      .subscribe({
+        next: (response) => {
+          if (typeof response.coins === 'number') {
+            this._students.update((students) =>
+              students.map((item) =>
+                item.id === studentId ? { ...item, coins: response.coins } : item,
+              ),
+            );
+          }
+        },
+        error: () => {
+          // A tentativa permanece aplicada localmente até a próxima sincronização.
+        },
+      });
+  }
+
+  /** Recarrega os dados da API para o usuário atual. */
   restoreDemoData(): void {
-    this._students.set(cloneStudents(STUDENTS));
-    this._progress.set(cloneProgress(SEED_PROGRESS));
-    if (this.isBrowser) {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-  }
-
-  // ------------------------------------------------------------- persistência
-
-  private loadPersistedData(): void {
-    if (!this.isBrowser) return;
-
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-
-      const parsed = JSON.parse(raw) as PersistedData;
-      if (
-        parsed.version !== DATA_VERSION ||
-        !Array.isArray(parsed.students) ||
-        !Array.isArray(parsed.progress)
-      ) {
-        return;
-      }
-
-      const validStudents = parsed.students.filter((student) =>
-        Boolean(student?.id && student?.name && student?.classId),
-      );
-      const validProgress = parsed.progress.filter((record) =>
-        Boolean(
-          record?.studentId &&
-            record?.activityId &&
-            Array.isArray(record?.history),
-        ),
-      );
-
-      if (validStudents.length > 0) {
-        this._students.set(validStudents);
-        this._progress.set(validProgress);
-      }
-    } catch {
-      // Dados corrompidos não devem impedir o uso da demonstração.
-    }
-  }
-
-  private persist(): void {
-    if (!this.isBrowser) return;
-
-    try {
-      const payload: PersistedData = {
-        version: DATA_VERSION,
-        savedAt: new Date().toISOString(),
-        students: this._students(),
-        progress: this._progress(),
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    } catch {
-      // Em modo privado ou com quota esgotada, seguimos apenas em memória.
-    }
+    this.loadedFor = null;
   }
 }

@@ -14,12 +14,12 @@ O app transforma os wireframes do relatório parcial em uma aplicação Angular 
 
 ## Contas de demonstração
 
-| Perfil    | ID         | Senha          | O que abre                                  |
-| --------- | ---------- | -------------- | ------------------------------------------- |
-| Aluno     | `345G7B`   | `1234567890`   | Painel, missões, ranking e carteira         |
-| Professor | `PROF-001` | `professor123` | Turmas, relatórios, missões e ficha do aluno |
+| Perfil    | E-mail                 | Senha      | O que abre                                  |
+| --------- | ---------------------- | ---------- | ------------------------------------------- |
+| Aluno     | `ana@example.com`      | `Senha123!` | Painel, missões, ranking e carteira         |
+| Professor | `professor@example.com` | `Senha123!` | Turmas, relatórios, missões e ficha do aluno |
 
-A tela de login também tem botões que preenchem e entram com essas contas. Os dados são fictícios; o progresso fica no `localStorage` do navegador.
+A tela de login também tem botões que preenchem e entram com essas contas. Os dados são fictícios e o progresso é gravado no banco PostgreSQL pelo backend Django.
 
 ## Rotas
 
@@ -60,10 +60,12 @@ A tela de login também tem botões que preenchem e entram com essas contas. Os 
 
 ```
 src/app/
-├── core/                 # modelos, seed, dados, sessão, guards, analytics, CSV
-│   ├── data.service.ts   # camada de dados simulada (contrato do backend)
+├── core/                 # modelos, API, sessão, guards, analytics, CSV
+│   ├── api.ts            # URL base do backend
+│   ├── auth.interceptor.ts
+│   ├── data.service.ts   # camada de dados ligada à API Django
 │   ├── session.service.ts
-│   └── seed.ts           # 22 alunos, 2 turmas, 5 missões, insígnias
+│   └── seed.ts           # fallback visual quando a API está indisponível
 ├── shared/               # ícones, avatar, progresso, estrelas, badges, cartões
 ├── layout/               # shells do aluno e do professor
 └── features/
@@ -72,31 +74,35 @@ src/app/
     └── teacher/
 ```
 
-### Backend simulado
+### Integração com o backend
 
-`DataService` é o único ponto de acesso aos dados. Ele mantém sinais em memória, persiste em `localStorage` (`educa.data.v1`) e expõe operações equivalentes às do backend previsto:
+`DataService` é o único ponto de acesso aos dados. Ele carrega da API Django/PostgreSQL e mantém sinais em memória para os componentes, que continuam consumindo os mesmos modelos de `core/models.ts`.
 
-| Operação atual                 | Equivalente Django/PostgreSQL                   |
-| ------------------------------ | ----------------------------------------------- |
-| `studentsInClass`, `studentById` | `GET /api/turmas/:id/alunos`                   |
-| `activities`, `activityById`   | `GET /api/atividades`                           |
-| `recordFor`, `progressFor`     | `GET /api/alunos/:id/progresso`                 |
-| `recordAttempt(...)`           | `POST /api/alunos/:id/tentativas`               |
-| `badgesFor`                    | `GET /api/alunos/:id/conquistas`                |
-| `rankingForClass`              | `GET /api/turmas/:id/ranking`                   |
-| exportações CSV                | `GET /api/turmas/:id/export.csv`                |
+| Operação no frontend           | Endpoint Django                                  |
+| ------------------------------ | ------------------------------------------------ |
+| Login                          | `POST /api/users/login/`                         |
+| Perfil autenticado             | `GET /api/users/me/`                             |
+| Atividades e questões          | `GET /api/content/activities/`                   |
+| Detalhe de atividade           | `GET /api/content/activities/:id/`               |
+| Turmas do professor            | `GET /api/classrooms/mine/`                      |
+| Alunos da turma                | `GET /api/classrooms/:id/students/`              |
+| Progresso da turma             | `GET /api/progress/classroom/:id/`               |
+| Progresso do aluno             | `GET /api/progress/me/`                          |
+| Registrar tentativa            | `POST /api/progress/attempt/`                    |
 
-A autenticação também é simulada: `SessionService` lê o cookie `educa_session` no servidor (para o SSR renderizar a área correta) e usa `localStorage` como apoio no navegador. Em produção, substitua por um cookie `HttpOnly` emitido pelo Django ou um token gerenciado pelo backend.
+A autenticação usa token do Django REST Framework. O token retornado no login é guardado em `localStorage` (`educa.token.v1`) e anexado às requisições pelo `authInterceptor` (`Authorization: Token ...`). A sessão também fica em cookie + `localStorage` para o SSR renderizar a área correta.
 
-Para integrar a API real, mantenha os modelos de `core/models.ts`, troque os métodos síncronos de `DataService` por chamadas `HttpClient` e ajuste os componentes para consumir `Observable`/`resource`. Os componentes não conhecem a origem dos dados.
+O endereço da API está em `src/app/core/api.ts` e usa `http://localhost:8000/api` por padrão. Para outro ambiente, defina `globalThis.__EDUCA_API__` antes do bootstrap.
+
+As constantes de `seed.ts` permanecem apenas como fallback visual caso a API esteja fora do ar. Para usar o fluxo completo, suba o backend conforme `backend/README.md`.
 
 ### Persistência local
 
-- `educa.session.v1` — sessão de demonstração.
-- `educa.data.v1` — alunos, moedas e progresso.
+- `educa.token.v1` — token da API Django.
+- `educa.session.v1` — sessão do usuário autenticado.
 - `educa.a11y.v1` — preferências de acessibilidade.
 
-O botão **Restaurar padrão** do painel de acessibilidade limpa apenas as preferências visuais. Para zerar o progresso, remova as chaves acima no DevTools.
+O botão **Restaurar padrão** do painel de acessibilidade limpa apenas as preferências visuais. Para sair, use o botão de logout do shell.
 
 ## Acessibilidade
 
@@ -111,6 +117,29 @@ O botão **Restaurar padrão** do painel de acessibilidade limpa apenas as prefe
 - O botão de acessibilidade é global e fecha com `Esc` ou clique fora.
 
 ## Comandos
+
+### Backend (Django)
+
+```bash
+# na raiz do repositório
+python -m venv .venv
+.venv\Scripts\activate          # Windows
+pip install -r backend/requirements.txt
+cd backend
+python manage.py migrate
+python manage.py seed_data
+python manage.py seed_activities
+python manage.py runserver       # http://localhost:8000
+```
+
+O backend espera o PostgreSQL `pi02-db` em `localhost:5432` (usuário `pi02-user`, senha `pi02`). Para rodar os testes:
+
+```bash
+cd backend
+python manage.py test
+```
+
+### Frontend
 
 ```bash
 npm install
@@ -139,6 +168,6 @@ O relatório parcial define um MVP com três módulos curtos, uma ou duas série
 - **Dentro do escopo**: troco, comparação de ofertas, parcelamento, poupança, orçamento, feedback corretivo, pontos/moedas, barra de progresso, insígnia por módulo, painel do professor e exportação.
 - **Fora do escopo**: loja virtual, avatar personalizável, narrativa extensa, simulações econômicas complexas, multijogador e IA.
 - **LGPD**: dados fictícios, nomes exibidos de forma reduzida e apenas o necessário para registrar progresso.
-- **Camada de dados**: mock local. A modelagem de `Aluno`, `Atividade` e `Histórico Progresso` segue a seção 2.5 do relatório.
+- **Camada de dados**: API Django/PostgreSQL, com fallback visual local. A modelagem de `Aluno`, `Atividade` e `Histórico Progresso` segue a seção 2.5 do relatório.
 
 Os wireframes estáticos que ficavam em `src/login`, `src/dashboard-aluno`, `src/dashboard-professor` e `src/atividades` foram substituídos por componentes Angular. O histórico do Git preserva os arquivos originais.

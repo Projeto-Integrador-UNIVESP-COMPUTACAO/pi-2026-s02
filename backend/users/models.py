@@ -20,3 +20,4 @@ class User(AbstractUser):
         blank=True,
         related_name="students",
     )
+    coins = models.IntegerField(default=0)

@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { USERS } from './seed';
+import { TOKEN_KEY } from './auth.interceptor';
 import type { Session } from './models';
 
 const COOKIE_NAME = 'educa_session';
@@ -15,11 +15,11 @@ const STORAGE_KEY = 'educa.session.v1';
 const MAX_AGE_SECONDS = 60 * 60 * 8;
 
 /**
- * Sessão de demonstração.
+ * Sessão emitida pelo backend Django.
  *
- * O cookie permite que o SSR renderize a área correta já na primeira
- * requisição. Em produção, substitua por um cookie HttpOnly emitido pelo
- * Django ou por um token gerenciado pelo backend.
+ * O token da API fica no localStorage e é anexado às requisições pelo
+ * `authInterceptor`. O cookie permite que o SSR renderize a área correta
+ * já na primeira requisição.
  */
 @Injectable({ providedIn: 'root' })
 export class SessionService {
@@ -28,7 +28,10 @@ export class SessionService {
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   private readonly _session = signal<Session | null>(this.readInitialSession());
+  private readonly _token = signal<string | null>(this.readToken());
+
   readonly session = this._session.asReadonly();
+  readonly token = this._token.asReadonly();
   readonly isAuthenticated = computed(() => this._session() !== null);
 
   readonly homeUrl = computed(() => {
@@ -37,11 +40,16 @@ export class SessionService {
     return session.role === 'teacher' ? '/professor/turmas' : '/aluno/painel';
   });
 
-  establish(session: Session): void {
+  establish(session: Session, token?: string): void {
     const canonical = this.canonicalize(session);
     if (!canonical) return;
 
     this._session.set(canonical);
+
+    if (token) {
+      this._token.set(token);
+      this.writeToken(token);
+    }
 
     if (!this.isBrowser) return;
 
@@ -56,13 +64,34 @@ export class SessionService {
 
   clear(): void {
     this._session.set(null);
+    this._token.set(null);
+
     if (!this.isBrowser) return;
 
     document.cookie = `${COOKIE_NAME}=; path=/; max-age=0; samesite=lax`;
     try {
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(TOKEN_KEY);
     } catch {
       // Ignora ambientes sem localStorage.
+    }
+  }
+
+  private readToken(): string | null {
+    if (!this.isBrowser) return null;
+    try {
+      return localStorage.getItem(TOKEN_KEY);
+    } catch {
+      return null;
+    }
+  }
+
+  private writeToken(token: string): void {
+    if (!this.isBrowser) return;
+    try {
+      localStorage.setItem(TOKEN_KEY, token);
+    } catch {
+      // Em modo privado, a sessão continua apenas em memória.
     }
   }
 
@@ -106,17 +135,12 @@ export class SessionService {
     if (!session?.userId || !session.role) return null;
     if (session.role !== 'student' && session.role !== 'teacher') return null;
 
-    const account = USERS.find(
-      (user) => user.id === session.userId && user.role === session.role,
-    );
-    if (!account) return null;
-
     return {
-      userId: account.id,
-      role: account.role,
-      displayName: account.displayName,
-      studentId: account.studentId,
-      teacherId: account.teacherId,
+      userId: session.userId,
+      role: session.role,
+      displayName: session.displayName || 'Usuário',
+      studentId: session.role === 'student' ? session.studentId ?? session.userId : undefined,
+      teacherId: session.role === 'teacher' ? session.teacherId ?? session.userId : undefined,
     };
   }
 }

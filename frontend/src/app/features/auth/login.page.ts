@@ -36,16 +36,16 @@ export class LoginPage {
     {
       role: 'student' as const,
       title: 'Aluno',
-      subtitle: 'Lucas S. · 5º ano A',
-      id: '345G7B',
-      password: '1234567890',
+      subtitle: 'Ana B. · 5º ano A',
+      id: 'ana@example.com',
+      password: 'Senha123!',
     },
     {
       role: 'teacher' as const,
       title: 'Professor',
-      subtitle: 'Prof. José Guilherme',
-      id: 'PROF-001',
-      password: 'professor123',
+      subtitle: 'José Guilherme',
+      id: 'professor@example.com',
+      password: 'Senha123!',
     },
   ];
 

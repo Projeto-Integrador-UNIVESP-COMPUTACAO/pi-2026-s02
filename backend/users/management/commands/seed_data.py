@@ -1,4 +1,3 @@
-
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
@@ -16,9 +15,10 @@ class Command(BaseCommand):
             email="professor@example.com",
             defaults={
                 "username": "professor_mock",
-                "name": "Carlos Silva",
+                "name": "José Guilherme",
                 "role": User.Role.TEACHER,
                 "is_active": True,
+                "is_staff": True,
             },
         )
 
@@ -27,20 +27,38 @@ class Command(BaseCommand):
 
         # Turmas
         classroom_a, _ = Classroom.objects.get_or_create(
-            name="Turma A",
+            name="5º ano A",
             teacher=teacher,
+            defaults={
+                "grade": "5º ano",
+                "school": "Colégio Extrativa",
+            },
         )
+        classroom_a.grade = "5º ano"
+        classroom_a.school = "Colégio Extrativa"
+        classroom_a.save(update_fields=["grade", "school"])
 
         classroom_b, _ = Classroom.objects.get_or_create(
-            name="Turma B",
+            name="7º ano B",
             teacher=teacher,
+            defaults={
+                "grade": "7º ano",
+                "school": "Colégio Extrativa",
+            },
         )
+        classroom_b.grade = "7º ano"
+        classroom_b.school = "Colégio Extrativa"
+        classroom_b.save(update_fields=["grade", "school"])
 
         # Alunos
         students = [
-            ("ana@example.com", "ana_mock", "Ana Souza", classroom_a),
-            ("pedro@example.com", "pedro_mock", "Pedro Santos", classroom_b),
+            ("ana@example.com", "345G7B", "Ana B.", classroom_a),
+            ("pedro@example.com", "pedro_mock", "Pedro H.", classroom_b),
             ("maria@example.com", "maria_mock", "Maria Oliveira", classroom_a),
+            ("lucas@example.com", "lucas_mock", "Lucas S.", classroom_a),
+            ("valentina@example.com", "valentina_mock", "Valentina R.", classroom_a),
+            ("theo@example.com", "theo_mock", "Theo V.", classroom_b),
+            ("manuela@example.com", "manuela_mock", "Manuela C.", classroom_b),
         ]
 
         for email, username, name, classroom in students:
@@ -51,11 +69,14 @@ class Command(BaseCommand):
                     "name": name,
                     "role": User.Role.STUDENT,
                     "is_active": True,
+                    "coins": 100,
                 },
             )
 
             student.classroom = classroom
             student.set_password("Senha123!")
+            if student.coins == 0:
+                student.coins = 100
             student.save()
 
         self.stdout.write(
