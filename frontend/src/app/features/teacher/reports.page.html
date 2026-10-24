@@ -1,0 +1,203 @@
+<div class="page reports-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Leitura pedagógica da turma</p>
+      <h1 class="page-title">Relatórios</h1>
+      <p class="page-sub">
+        Desempenho por missão, cobertura das habilidades da BNCC e alunos que
+        podem se beneficiar de uma intervenção.
+      </p>
+    </div>
+    <div class="page-header__actions no-print">
+      <button type="button" class="btn btn--ghost" (click)="print()">
+        <app-icon name="print" [size]="18" />
+        Imprimir
+      </button>
+      <button type="button" class="btn btn--primary" (click)="exportCsv()">
+        <app-icon name="download" [size]="18" />
+        Exportar CSV
+      </button>
+    </div>
+  </header>
+
+  <section class="report-meta" aria-label="Contexto do relatório">
+    <div>
+      <span class="stat-card__label">Turma</span>
+      <strong>{{ context.currentClass()?.name }} · {{ context.currentClass()?.school }}</strong>
+    </div>
+    <span class="tag">{{ students().length }} alunos</span>
+  </section>
+
+  <section class="stat-grid" aria-label="Indicadores da turma">
+    <article class="stat-card">
+      <span class="stat-card__icon"><app-icon name="chart" [size]="21" /></span>
+      <div>
+        <span class="stat-card__label">Média da turma</span>
+        <span class="stat-card__value">{{ metrics().averageScore }}%</span>
+      </div>
+    </article>
+    <article class="stat-card">
+      <span class="stat-card__icon"><app-icon name="flag" [size]="21" /></span>
+      <div>
+        <span class="stat-card__label">Conclusão</span>
+        <span class="stat-card__value">{{ metrics().completionPct }}%</span>
+      </div>
+    </article>
+    <article class="stat-card">
+      <span class="stat-card__icon"><app-icon name="clock" [size]="21" /></span>
+      <div>
+        <span class="stat-card__label">Ativos (7 dias)</span>
+        <span class="stat-card__value">{{ metrics().activeLast7Days }}</span>
+      </div>
+    </article>
+    <article class="stat-card">
+      <span class="stat-card__icon"><app-icon name="target" [size]="21" /></span>
+      <div>
+        <span class="stat-card__label">Missão mais difícil</span>
+        <span class="stat-card__value stat-card__value--sm">
+          {{ hardest()?.activity?.title ?? 'Sem dados' }}
+        </span>
+      </div>
+    </article>
+  </section>
+
+  <div class="reports-grid section">
+    <section class="card" aria-labelledby="missions-report-title">
+      <div class="section-head">
+        <h2 class="section-title" id="missions-report-title">
+          <app-icon name="flag" [size]="22" /> Desempenho por missão
+        </h2>
+        <span class="tag">média de acertos</span>
+      </div>
+
+      <div class="report-bars">
+        @for (stat of missionStats(); track stat.activity.id) {
+          <div class="bar-row">
+            <span class="bar-row__label">{{ stat.activity.title }}</span>
+            <span class="bar-row__value">{{ stat.averageScore }}%</span>
+            <div
+              class="bar"
+              role="img"
+              [attr.aria-label]="stat.activity.title + ': média de ' + stat.averageScore + '%'"
+            >
+              <span class="bar__fill" [style.width.%]="stat.averageScore"></span>
+            </div>
+            <p class="bar-note">
+              {{ stat.completedStudents }}/{{ students().length }} concluíram ·
+              {{ stat.attempts }} tentativas ·
+              {{ stat.averageErrors }} erro(s) por tentativa
+            </p>
+          </div>
+        }
+      </div>
+
+      @if (best(); as top) {
+        <p class="report-callout">
+          <app-icon name="sparkles" [size]="18" />
+          Ponto forte: <strong>{{ top.activity.title }}</strong> tem a melhor
+          média ({{ top.averageScore }}%). Considere usá-la como exemplo antes de
+          introduzir a missão mais difícil.
+        </p>
+      }
+    </section>
+
+    <section class="card" aria-labelledby="skills-report-title">
+      <div class="section-head">
+        <h2 class="section-title" id="skills-report-title">
+          <app-icon name="book" [size]="22" /> Cobertura BNCC
+        </h2>
+        <span class="tag">3 habilidades</span>
+      </div>
+
+      <div class="skill-report-list">
+        @for (stat of skills(); track stat.skill.code) {
+          <article class="skill-report">
+            <div class="skill-report__head">
+              <div>
+                <span class="tag skill-tag" [attr.data-skill]="stat.skill.code">
+                  {{ stat.skill.code }}
+                </span>
+                <strong>{{ stat.skill.title }}</strong>
+                <p>{{ stat.skill.description }}</p>
+              </div>
+              <span class="skill-report__avg">{{ stat.averageScore }}%</span>
+            </div>
+            <app-progress
+              [value]="stat.averageScore"
+              [label]="'Média em ' + stat.skill.code"
+            />
+            <p class="small muted">
+              {{ stat.completedStudents }} aluno(s) concluíram ·
+              {{ stat.activityCount }} missão(ões) relacionada(s)
+            </p>
+          </article>
+        }
+      </div>
+    </section>
+  </div>
+
+  <section class="card section" aria-labelledby="support-title">
+    <div class="section-head">
+      <h2 class="section-title" id="support-title">
+        <app-icon name="lightbulb" [size]="22" /> Alunos que podem precisar de apoio
+      </h2>
+      <span class="tag">{{ supportStudents().length }} aluno(s)</span>
+    </div>
+
+    @if (supportStudents().length > 0) {
+      <div class="table-wrap">
+        <table class="data-table">
+          <caption class="sr-only">
+            Alunos com baixa média ou nenhuma missão concluída
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Aluno</th>
+              <th scope="col">Nível</th>
+              <th scope="col">Média</th>
+              <th scope="col">Missões</th>
+              <th scope="col">Último acesso</th>
+              <th scope="col"><span class="sr-only">Ações</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (entry of supportStudents(); track entry.student.id) {
+              <tr>
+                <td>
+                  <span class="cell-name">
+                    <app-avatar [name]="entry.student.name" [size]="30" />
+                    {{ entry.student.name }}
+                  </span>
+                </td>
+                <td>{{ entry.level }}</td>
+                <td><strong>{{ entry.averageScore }}%</strong></td>
+                <td>{{ entry.completed }}/{{ totalMissions() }}</td>
+                <td>{{ lastAccess(entry.student.id) }}</td>
+                <td class="cell-actions">
+                  <a
+                    class="btn btn--sm btn--ghost"
+                    [routerLink]="['/professor/alunos', entry.student.id]"
+                  >
+                    Ver percurso
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="report-note">
+        Critério: nenhuma missão concluída ou média abaixo de 60%. O painel é um
+        apoio à decisão pedagógica, não um diagnóstico.
+      </p>
+    } @else {
+      <div class="empty">
+        <h3>Ninguém no radar agora</h3>
+        <p>
+          Todos os alunos com tentativas registradas têm média igual ou superior
+          a 60%. Continue acompanhando o progresso.
+        </p>
+      </div>
+    }
+  </section>
+</div>

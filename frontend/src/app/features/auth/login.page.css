@@ -1,0 +1,347 @@
+.login {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(21rem, 0.95fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: center;
+  width: min(100%, 1200px);
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 4vw, 3rem);
+}
+
+.login__brand {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+.login__brand-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.login__pill {
+  background: var(--paper);
+  font-weight: 800;
+  transform: rotate(1.5deg);
+}
+
+.login__hero h1 {
+  max-width: 16ch;
+  margin: 0.2rem 0 0.8rem;
+  font-size: clamp(2.4rem, 5.6vw, 4.4rem);
+  line-height: 0.93;
+}
+
+.login__underline {
+  position: relative;
+  display: inline-block;
+  padding: 0 0.1em;
+  background-image: linear-gradient(transparent 62%, var(--yellow) 62% 92%, transparent 92%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+.login__lead {
+  max-width: 48ch;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: clamp(0.98rem, 1.4vw, 1.1rem);
+  line-height: 1.55;
+}
+
+.login__features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.login__features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  max-width: 46ch;
+}
+
+.login__feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 auto;
+  border: 2px solid var(--ink);
+  border-radius: 46% 54% 51% 49% / 52% 48% 52% 48%;
+  background: var(--yellow-soft);
+}
+
+.login__feature-icon[data-tone='green'] {
+  background: var(--green-soft);
+}
+
+.login__feature-icon[data-tone='blue'] {
+  background: var(--blue-soft);
+}
+
+.login__features strong {
+  display: block;
+  font-size: 0.9rem;
+}
+
+.login__features span {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.login__note {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px dashed var(--ink);
+  border-radius: var(--wobble-sm);
+  background: var(--paper);
+  transform: rotate(-0.6deg);
+}
+
+.login__note-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--yellow);
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  flex: 0 0 auto;
+}
+
+.login__note p {
+  margin: 0;
+}
+
+.login__note strong {
+  display: block;
+  font-size: 0.82rem;
+}
+
+.login__note span {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.login__squiggle {
+  width: min(240px, 55%);
+  color: var(--ink);
+  opacity: 0.35;
+}
+
+.login__squiggle svg {
+  width: 100%;
+  height: auto;
+}
+
+.login__panel {
+  width: 100%;
+  max-width: 30rem;
+  justify-self: end;
+}
+
+.login__card {
+  padding: clamp(1.2rem, 2.4vw, 1.8rem);
+  background: var(--paper);
+}
+
+.login__head h2 {
+  margin: 0 0 0.2rem;
+  font-size: clamp(1.9rem, 3vw, 2.4rem);
+}
+
+.login__head p:last-child {
+  margin: 0 0 1.2rem;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+}
+
+.login__password {
+  padding-right: 2.7rem;
+}
+
+.login__reveal {
+  position: absolute;
+  right: 0.55rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-soft);
+}
+
+.login__reveal:hover {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.login__submit {
+  margin-top: 0.4rem;
+  font-size: 1.1rem;
+}
+
+.login__divider {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 1.2rem 0 0.8rem;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.login__divider::before,
+.login__divider::after {
+  content: '';
+  flex: 1;
+  border-top: 2px dashed var(--line);
+}
+
+.login__demos {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.login__demo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 2px solid var(--ink);
+  border-radius: var(--wobble-sm);
+  background: var(--paper-2);
+  color: var(--ink);
+  text-align: left;
+  transition:
+    transform 0.13s ease,
+    background 0.13s ease;
+}
+
+.login__demo:hover {
+  transform: translateX(2px);
+  background: var(--yellow-soft);
+}
+
+.login__demo-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  flex: 0 0 auto;
+}
+
+.login__demo-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.login__demo-text strong {
+  display: block;
+  font-size: 0.88rem;
+}
+
+.login__demo-text small {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+}
+
+.login__demo-text code {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.login__fineprint {
+  margin: 1rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.login__a11y {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .login__a11y {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 0.8rem;
+    padding-top: 0.7rem;
+    border-top: 2px dashed var(--line);
+    color: var(--ink-soft);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+}
+
+@media (max-width: 900px) {
+  .login {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 1.5rem;
+    padding-top: 1.5rem;
+    padding-bottom: 6rem;
+  }
+
+  .login__hero h1 {
+    max-width: 20ch;
+    font-size: clamp(2.2rem, 8vw, 3.4rem);
+  }
+
+  .login__squiggle {
+    display: none;
+  }
+
+  .login__panel {
+    justify-self: stretch;
+    max-width: none;
+  }
+
+  .login__card {
+    max-width: 34rem;
+    margin: 0 auto;
+  }
+}

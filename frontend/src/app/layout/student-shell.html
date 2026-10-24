@@ -1,0 +1,59 @@
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" routerLink="/aluno/painel" aria-label="Educa$ — ir para o painel">
+      <span class="brand__mark" aria-hidden="true">$</span>
+      <span>
+        Educa$
+        <span class="brand__tag">Educação financeira</span>
+      </span>
+    </a>
+
+    <nav class="site-nav" aria-label="Navegação do aluno">
+      @for (link of links; track link.path) {
+        <a
+          class="site-nav__link"
+          [routerLink]="link.path"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: link.exact }"
+        >
+          <app-icon [name]="link.icon" [size]="19" />
+          <span>{{ link.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="userbar">
+      <a class="userbar__profile" routerLink="/aluno/carteira" aria-label="Abrir carteira e perfil">
+        <app-avatar [name]="student()?.name ?? 'Aluno'" [size]="42" />
+        <span class="userbar__meta">
+          <strong>{{ student()?.name ?? 'Aluno' }}</strong>
+          <span>Nível {{ level().level }} · {{ level().name }}</span>
+        </span>
+      </a>
+
+      <span class="coin-pill" [attr.aria-label]="(student()?.coins ?? 0) + ' moedas'">
+        <app-icon name="coin" [size]="17" />
+        {{ student()?.coins ?? 0 }}
+      </span>
+
+      <app-a11y-trigger />
+
+      <button type="button" class="icon-btn userbar__logout" aria-label="Sair da conta" (click)="logout()">
+        <app-icon name="logout" [size]="19" />
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="conteudo" class="site-main" tabindex="-1">
+  <router-outlet />
+</main>
+
+<footer class="site-footer">
+  <p>
+    <strong>Educa$</strong> · Protótipo acadêmico UNIVESP · Projeto Integrador 2026
+  </p>
+  <p class="site-footer__note">
+    Dados fictícios de demonstração. Seu progresso fica salvo neste navegador.
+  </p>
+</footer>

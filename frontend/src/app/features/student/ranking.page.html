@@ -1,0 +1,112 @@
+<div class="page ranking-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Gamificação com propósito</p>
+      <h1 class="page-title">Ranking da turma</h1>
+      <p class="page-sub">
+        O ranking usa o XP das missões concluídas. Ele é uma forma de acompanhar
+        o esforço — não uma nota.
+      </p>
+    </div>
+    @if (classInfo(); as group) {
+      <span class="tag">{{ group.name }} · {{ group.school }}</span>
+    }
+  </header>
+
+  @if (myEntry(); as mine) {
+    <section class="my-rank card" aria-label="Sua posição no ranking">
+      <div class="my-rank__pos">
+        <span class="my-rank__pos-number">{{ mine.position }}º</span>
+        <span class="small muted">sua posição</span>
+      </div>
+      <div class="my-rank__divider" aria-hidden="true"></div>
+      <div class="my-rank__info">
+        <strong>{{ mine.student.name }}</strong>
+        <span>Nível {{ mine.level }} · {{ mine.xp }} XP · {{ mine.student.coins }} moedas</span>
+      </div>
+      <div class="my-rank__stats">
+        <span><app-icon name="flag" [size]="16" /> {{ completedFor(mine.student.id) }} missões</span>
+        <span><app-icon name="coin" [size]="16" /> {{ mine.student.coins }}</span>
+      </div>
+    </section>
+  }
+
+  <section class="podium" aria-label="Três primeiros lugares">
+    @for (entry of podium(); track entry.student.id) {
+      <article
+        class="podium__place"
+        [attr.data-place]="entry.position"
+        [class.is-me]="entry.student.id === student()?.id"
+      >
+        <span class="podium__medal" aria-hidden="true">
+          <app-icon [name]="entry.position === 1 ? 'trophy' : 'medal'" [size]="entry.position === 1 ? 30 : 25" />
+        </span>
+        <app-avatar [name]="entry.student.name" [size]="entry.position === 1 ? 64 : 52" />
+        <strong class="podium__name">
+          {{ entry.student.name }}
+          @if (entry.student.id === student()?.id) {
+            <span class="tag">você</span>
+          }
+        </strong>
+        <span class="podium__meta">Nível {{ entry.level }}</span>
+        <span class="podium__xp">{{ entry.xp }} XP</span>
+        <span class="podium__base" aria-hidden="true">{{ entry.position }}º</span>
+      </article>
+    }
+  </section>
+
+  <section class="card ranking-table" aria-labelledby="ranking-table-title">
+    <div class="section-head">
+      <h2 class="section-title" id="ranking-table-title">
+        <app-icon name="list-checks" [size]="22" /> Classificação completa
+      </h2>
+      <span class="tag">{{ ranking().length }} alunos</span>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <caption class="sr-only">
+          Ranking dos alunos da turma por XP
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Posição</th>
+            <th scope="col">Aluno</th>
+            <th scope="col">Nível</th>
+            <th scope="col">XP</th>
+            <th scope="col">Missões</th>
+            <th scope="col">Moedas</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (entry of ranking(); track entry.student.id) {
+            <tr [class.is-me]="entry.student.id === student()?.id">
+              <td>
+                <span class="rank-pos">{{ entry.position }}º</span>
+              </td>
+              <td>
+                <span class="cell-name">
+                  <app-avatar [name]="entry.student.name" [size]="30" />
+                  {{ entry.student.name }}
+                  @if (entry.student.id === student()?.id) {
+                    <span class="tag">você</span>
+                  }
+                </span>
+              </td>
+              <td>{{ entry.level }}</td>
+              <td><strong>{{ entry.xp }}</strong></td>
+              <td>{{ completedFor(entry.student.id) }}</td>
+              <td>{{ entry.student.coins }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <p class="ranking-note">
+      <app-icon name="lock" [size]="15" />
+      Por privacidade, mostramos apenas o primeiro nome e a inicial do sobrenome.
+      O ranking é da sua turma e não é compartilhado publicamente.
+    </p>
+  </section>
+</div>
