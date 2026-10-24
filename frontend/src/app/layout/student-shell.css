@@ -1,0 +1,155 @@
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  border-bottom: 2.5px solid var(--ink);
+  background: var(--paper);
+  background: color-mix(in srgb, var(--paper) 94%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.7rem, 2vw, 1.4rem);
+  width: min(100%, var(--maxw));
+  margin: 0 auto;
+  padding: 0.6rem clamp(1rem, 3vw, 2rem);
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.site-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.site-nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.65rem;
+  border: 2px solid transparent;
+  border-radius: var(--wobble-pill);
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background 0.13s ease,
+    color 0.13s ease,
+    border-color 0.13s ease;
+}
+
+.site-nav__link:hover {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.site-nav__link.is-active {
+  border-color: var(--ink);
+  background: var(--yellow-soft);
+  color: var(--ink);
+  box-shadow: 2px 2px 0 var(--shadow);
+}
+
+.userbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+}
+
+.userbar__profile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.userbar__meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.userbar__meta strong {
+  font-size: 0.82rem;
+}
+
+.userbar__meta span {
+  font-size: 0.68rem;
+  color: var(--ink-soft);
+}
+
+.userbar__logout {
+  width: 2.15rem;
+  height: 2.15rem;
+}
+
+.site-main {
+  min-height: calc(100dvh - 12rem);
+}
+
+.site-footer {
+  width: min(100%, var(--maxw));
+  margin: 0 auto;
+  padding: 1.5rem clamp(1rem, 3vw, 2rem) 3.5rem;
+  border-top: 2px dashed var(--line);
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+.site-footer__note {
+  margin-top: 0.2rem;
+  font-size: 0.7rem;
+}
+
+@media (max-width: 860px) {
+  .site-header__inner {
+    flex-wrap: wrap;
+    row-gap: 0.45rem;
+  }
+
+  .site-nav {
+    order: 3;
+    flex-basis: 100%;
+    padding-bottom: 0.15rem;
+  }
+
+  .userbar {
+    margin-left: auto;
+  }
+
+  .userbar__meta {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .brand__tag {
+    display: none;
+  }
+
+  .site-nav__link {
+    font-size: 0.76rem;
+    padding: 0.35rem 0.5rem;
+  }
+
+  .coin-pill {
+    font-size: 0.9rem;
+  }
+}

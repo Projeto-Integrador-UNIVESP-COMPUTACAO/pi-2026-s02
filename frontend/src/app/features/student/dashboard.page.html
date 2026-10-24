@@ -1,0 +1,220 @@
+<div class="page dashboard">
+  <header class="dash-head">
+    <div class="dash-head__intro">
+      <p class="eyebrow">
+        Painel do aluno
+        @if (classInfo(); as group) {
+          · {{ group.name }} · {{ group.school }}
+        }
+      </p>
+      <h1 class="page-title">Olá, {{ firstName() }}!</h1>
+      <p class="page-sub">
+        @if (completed() === missions().length) {
+          Você concluiu todas as missões disponíveis. Que tal revisar uma delas
+          para melhorar seu recorde?
+        } @else {
+          Você já concluiu {{ completed() }} de {{ missions().length }} missões.
+          Cada uma vale moedas e XP para subir de nível.
+        }
+      </p>
+    </div>
+
+    <div class="level-card card">
+      <app-avatar [name]="student()?.name ?? 'Aluno'" [size]="58" />
+      <div class="level-card__body">
+        <div class="level-card__head">
+          <div>
+            <strong>Nível {{ level().level }}</strong>
+            <span>{{ level().name }}</span>
+          </div>
+          <span class="coin-pill" [attr.aria-label]="(student()?.coins ?? 0) + ' moedas'">
+            <app-icon name="coin" [size]="16" />
+            {{ student()?.coins ?? 0 }}
+          </span>
+        </div>
+        <app-progress
+          [value]="level().progressPct"
+          [label]="'Progresso para o próximo nível: ' + level().progressPct + '%'"
+        />
+        <p class="small muted">
+          @if (level().xpToNext !== null) {
+            Faltam {{ level().xpToNext }} XP para o nível {{ level().level + 1 }}.
+          } @else {
+            Nível máximo alcançado!
+          }
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <section class="stat-grid" aria-label="Resumo do aluno">
+    <article class="stat-card">
+      <span class="stat-card__icon"><app-icon name="star" [size]="22" [filled]="true" /></span>
+      <div>
+        <span class="stat-card__label">Nível</span>
+        <span class="stat-card__value">{{ level().level }} · {{ level().name }}</span>
+      </div>
+    </article>
+    <article class="stat-card">
+      <span class="stat-card__icon"><app-icon name="flag" [size]="22" /></span>
+      <div>
+        <span class="stat-card__label">Missões</span>
+        <span class="stat-card__value">{{ completed() }} de {{ missions().length }}</span>
+      </div>
+    </article>
+    <article class="stat-card">
+      <span class="stat-card__icon"><app-icon name="chart" [size]="22" /></span>
+      <div>
+        <span class="stat-card__label">Média de acertos</span>
+        <span class="stat-card__value">{{ average() }}%</span>
+      </div>
+    </article>
+    <article class="stat-card">
+      <span class="stat-card__icon"><app-icon name="trophy" [size]="22" /></span>
+      <div>
+        <span class="stat-card__label">Ranking da turma</span>
+        <span class="stat-card__value">{{ myPosition() }}º lugar</span>
+      </div>
+    </article>
+  </section>
+
+  <div class="layout-split section">
+    <div>
+      @if (featured(); as mission) {
+        <section class="featured" aria-labelledby="featured-title">
+          <div class="featured__content">
+            <span class="tag featured__tag">Próxima missão</span>
+            <h2 id="featured-title">{{ mission.activity.title }}</h2>
+            <p>{{ mission.activity.description }}</p>
+
+            <div class="featured__meta">
+              <span class="icon-label">
+                <app-icon name="clock" [size]="16" />
+                {{ mission.activity.estimatedMinutes }} min
+              </span>
+              <span class="icon-label">
+                <app-icon name="coin" [size]="16" />
+                +{{ mission.activity.rewardCoins }} moedas
+              </span>
+              @if (mission.record?.passed) {
+                <app-star-rating [score]="mission.record?.bestScore ?? 0" />
+              } @else {
+                <span class="tag">{{ mission.activity.gradeLabel }}</span>
+              }
+            </div>
+
+            <div class="featured__skills">
+              @for (skill of mission.activity.skills; track skill) {
+                <span class="tag skill-tag" [attr.data-skill]="skill">
+                  {{ skill }} · {{ skillTitle(skill) }}
+                </span>
+              }
+            </div>
+
+            <a class="btn btn--primary" [routerLink]="['/aluno/missoes', mission.activity.id]">
+              @if (mission.status === 'done') {
+                Revisar missão
+              } @else if (mission.status === 'progress') {
+                Continuar missão
+              } @else {
+                Começar missão
+              }
+              <app-icon name="arrow-right" [size]="18" />
+            </a>
+          </div>
+
+          <div class="featured__doodle" aria-hidden="true">
+            <span class="featured__coin">$</span>
+            <app-icon [name]="mission.activity.icon" [size]="92" />
+          </div>
+        </section>
+      }
+
+      <section class="section">
+        <div class="section-head">
+          <h2 class="section-title"><app-icon name="flag" [size]="24" /> Suas missões</h2>
+          <a class="section-link" routerLink="/aluno/missoes">Ver todas</a>
+        </div>
+        <div class="mission-grid">
+          @for (mission of missions().slice(0, 4); track mission.activity.id) {
+            <app-mission-card [activity]="mission.activity" [record]="mission.record" />
+          }
+        </div>
+      </section>
+
+      <section class="section skills-card card card--soft" aria-labelledby="skills-title">
+        <div class="section-head">
+          <h2 class="section-title" id="skills-title">
+            <app-icon name="book" [size]="23" /> Habilidades da BNCC
+          </h2>
+          <span class="tag">3 habilidades</span>
+        </div>
+        <div class="skills-list">
+          @for (item of skillSummary(); track item.skill.code) {
+            <div class="skill-row">
+              <div class="skill-row__head">
+                <div>
+                  <strong>{{ item.skill.code }} · {{ item.skill.title }}</strong>
+                  <span>{{ item.skill.description }}</span>
+                </div>
+                <span class="small nowrap">{{ item.done }}/{{ item.total }}</span>
+              </div>
+              <app-progress [value]="item.pct" [label]="'Progresso em ' + item.skill.code" />
+            </div>
+          }
+        </div>
+      </section>
+    </div>
+
+    <aside class="stack">
+      <section class="card rank-card" aria-labelledby="rank-title">
+        <div class="section-head">
+          <h2 class="section-title" id="rank-title">
+            <app-icon name="trophy" [size]="22" /> Ranking
+          </h2>
+          <a class="section-link" routerLink="/aluno/ranking">Ver tudo</a>
+        </div>
+        <p class="small muted rank-card__class">{{ classInfo()?.name }}</p>
+
+        <ol class="mini-rank">
+          @for (entry of topRanking(); track entry.student.id) {
+            <li [class.is-me]="entry.student.id === student()?.id">
+              <span class="mini-rank__pos">{{ entry.position }}º</span>
+              <app-avatar [name]="entry.student.name" [size]="30" />
+              <span class="mini-rank__name">
+                {{ entry.student.name }}
+                @if (entry.student.id === student()?.id) {
+                  <span class="tag">você</span>
+                }
+              </span>
+              <span class="mini-rank__xp">{{ entry.xp }} XP</span>
+            </li>
+          }
+        </ol>
+
+        @if (myPosition() > 4) {
+          <p class="mini-rank__mine">
+            Sua posição: <strong>{{ myPosition() }}º</strong> com {{ xp() }} XP
+          </p>
+        }
+      </section>
+
+      <section class="card badges-card" aria-labelledby="badges-title">
+        <div class="section-head">
+          <h2 class="section-title" id="badges-title">
+            <app-icon name="award" [size]="22" /> Conquistas
+          </h2>
+          <span class="tag">{{ earnedBadges() }} de {{ badgeItems().length }}</span>
+        </div>
+        <div class="badge-grid">
+          @for (item of badgeItems(); track item.badge.id) {
+            <app-badge-card [badge]="item.badge" [earned]="item.earned" />
+          }
+        </div>
+        <a class="btn btn--ghost btn--sm btn--block" routerLink="/aluno/carteira">
+          Ver carteira completa
+        </a>
+      </section>
+    </aside>
+  </div>
+</div>

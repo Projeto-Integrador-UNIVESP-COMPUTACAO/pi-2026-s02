@@ -1,0 +1,66 @@
+<div class="teacher-layout">
+  <aside class="teacher-sidebar">
+    <a class="brand" routerLink="/professor/turmas" aria-label="Educa$ — painel do professor">
+      <span class="brand__mark" aria-hidden="true">$</span>
+      <span>
+        Educa$
+        <span class="brand__tag">Painel do professor</span>
+      </span>
+    </a>
+
+    <div class="teacher-id">
+      <app-avatar [name]="teacher()?.name ?? 'Professor'" [size]="54" />
+      <div class="teacher-id__text">
+        <strong>{{ teacher()?.name ?? 'Professor' }}</strong>
+        <span>{{ teacher()?.title }}</span>
+      </div>
+    </div>
+
+    <nav class="teacher-nav" aria-label="Navegação do professor">
+      @for (link of links; track link.path) {
+        <a
+          class="teacher-nav__link"
+          [routerLink]="link.path"
+          routerLinkActive="is-active"
+        >
+          <app-icon [name]="link.icon" [size]="20" />
+          <span>{{ link.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="teacher-class">
+      <label class="label" for="class-picker">Turma</label>
+      <select
+        id="class-picker"
+        class="select"
+        [value]="context.currentClassId()"
+        (change)="selectClass($event)"
+      >
+        @for (group of context.classes(); track group.id) {
+          <option [value]="group.id">{{ group.name }}</option>
+        }
+      </select>
+      <p class="small muted teacher-class__school">
+        {{ context.currentClass()?.school }}
+      </p>
+    </div>
+
+    <div class="teacher-sidebar__footer">
+      <p class="small muted">
+        Protótipo UNIVESP · 2026. Dados de demonstração.
+      </p>
+      <div class="teacher-sidebar__actions">
+        <app-a11y-trigger />
+        <button type="button" class="btn btn--ghost btn--sm btn--block" (click)="logout()">
+          <app-icon name="logout" [size]="17" />
+          Sair da conta
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <main id="conteudo" class="teacher-main" tabindex="-1">
+    <router-outlet />
+  </main>
+</div>
