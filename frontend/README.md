@@ -92,7 +92,24 @@ src/app/
 
 A autenticação usa token do Django REST Framework. O token retornado no login é guardado em `localStorage` (`educa.token.v1`) e anexado às requisições pelo `authInterceptor` (`Authorization: Token ...`). A sessão também fica em cookie + `localStorage` para o SSR renderizar a área correta.
 
-O endereço da API está em `src/app/core/api.ts` e usa `http://localhost:8000/api` por padrão. Para outro ambiente, defina `globalThis.__EDUCA_API__` antes do bootstrap.
+O endereço da API vem de `NG_APP_API_URL` no arquivo `frontend/.env`. Como o Angular não lê `.env` nativamente, o script `scripts/generate-env.mjs` converte o arquivo em `src/environments/environment.ts` antes de `npm start`, `npm run build`, `npm run watch` e `npm test`. `globalThis.__EDUCA_API__` continua disponível como override em tempo de execução.
+
+### Variáveis de ambiente
+
+Copie `frontend/.env.example` para `frontend/.env` (não versionado) e ajuste:
+
+| Variável | Padrão | Descrição |
+| -------- | ------ | --------- |
+| `NG_APP_API_URL` | `http://localhost:8000/api` | URL base da API Django, sem barra final |
+| `NG_APP_PRODUCTION` | `False` | Marca o ambiente como produção (`true`/`false`) |
+| `PORT` | `4000` | Porta do servidor SSR |
+
+```bash
+cp .env.example .env            # Windows: copy .env.example .env
+npm run env                     # regenera src/environments/environment.ts
+```
+
+O arquivo `src/environments/environment.ts` é versionado com os valores padrão de desenvolvimento e é sobrescrito pelo script. Para apontar para outro backend, basta alterar `NG_APP_API_URL` e reiniciar `npm start`.
 
 As constantes de `seed.ts` permanecem apenas como fallback visual caso a API esteja fora do ar. Para usar o fluxo completo, suba o backend conforme `backend/README.md`.
 
@@ -143,6 +160,7 @@ python manage.py test
 
 ```bash
 npm install
+cp .env.example .env         # Windows: copy .env.example .env
 npm start            # ng serve (http://localhost:4200)
 npm run build        # build de produção com SSR
 npm run serve:ssr:frontend  # serve o build em http://localhost:4000

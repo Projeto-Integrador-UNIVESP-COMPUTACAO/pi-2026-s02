@@ -11,23 +11,37 @@ API Django REST para a plataforma gamificada de educação financeira descrita n
 
 ## Configuração
 
-O projeto espera um PostgreSQL local:
+As configurações ficam em `backend/.env`, carregado automaticamente por `python-dotenv` em `pi02/settings.py`. O arquivo não é versionado; use `backend/.env.example` como modelo:
+
+```bash
+cd backend
+cp .env.example .env        # Windows: copy .env.example .env
+```
 
 | Variável | Valor padrão |
 | -------- | ------------ |
-| Banco    | `pi02-db`    |
-| Usuário  | `pi02-user`  |
-| Senha    | `pi02`       |
-| Host     | `localhost`  |
-| Porta    | `5432`       |
+| `DJANGO_SECRET_KEY` | chave insegura de desenvolvimento |
+| `DJANGO_DEBUG` | `True` |
+| `DJANGO_ALLOWED_HOSTS` | `localhost,127.0.0.1,testserver,.onrender.com` |
+| `DJANGO_CORS_ALLOW_ALL_ORIGINS` | `True` |
+| `DJANGO_CORS_ALLOWED_ORIGINS` | `http://localhost:4200,http://127.0.0.1:4200` |
+| `DJANGO_CORS_ALLOW_CREDENTIALS` | `True` |
+| `DB_NAME` | `pi02-db` |
+| `DB_USER` | `pi02-user` |
+| `DB_PASSWORD` | `pi02` |
+| `DB_HOST` | `localhost` |
+| `DB_PORT` | `5432` |
 
-Ajuste em `pi02/settings.py` se necessário.
+Variáveis já definidas no ambiente do processo têm prioridade sobre o `.env`. Em produção, defina `DJANGO_DEBUG=False`, uma `DJANGO_SECRET_KEY` nova e restrinja hosts e origens de CORS.
+
+O projeto espera um PostgreSQL local com os valores acima.
 
 ```bash
 # na raiz do repositório
 python -m venv .venv
 .venv\Scripts\activate          # Windows
 pip install -r backend/requirements.txt
+cp backend/.env.example backend/.env   # Windows: copy backend\.env.example backend\.env
 
 cd backend
 python manage.py migrate
@@ -51,6 +65,8 @@ python manage.py runserver       # http://localhost:8000
 
 | Método | Rota | Descrição |
 | ------ | ---- | --------- |
+| GET | `/` (ou `/health/`, `/api/health/`) | Liveness: 200 enquanto o Django estiver no ar; inclui o estado do banco |
+| GET | `/health/ready/` (ou `/api/health/ready/`) | Readiness: 200 com banco acessível, 503 caso contrário |
 | POST | `/api/users/login/` | Login por e-mail (ou username) e senha; retorna token e usuário |
 | GET | `/api/users/me/` | Perfil do usuário autenticado |
 | GET | `/api/classrooms/mine/` | Turmas do professor ou turma do aluno |

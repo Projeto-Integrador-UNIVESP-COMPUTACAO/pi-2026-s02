@@ -10,27 +10,51 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Carrega as variáveis de backend/.env (veja backend/.env.example).
+# Variáveis já definidas no ambiente têm prioridade sobre o arquivo.
+load_dotenv(BASE_DIR / '.env')
+
+
+def env_bool(name: str, default: bool = False) -> bool:
+    """Lê uma variável booleana aceitando True/False, 1/0, yes/no e on/off."""
+    value = os.getenv(name)
+    if value is None or value.strip() == '':
+        return default
+    return value.strip().lower() in {'1', 'true', 'yes', 'on'}
+
+
+def env_list(name: str, default: list[str] | None = None) -> list[str]:
+    """Lê uma lista separada por vírgulas, ignorando espaços e itens vazios."""
+    value = os.getenv(name)
+    if value is None or value.strip() == '':
+        return list(default or [])
+    return [item.strip() for item in value.split(',') if item.strip()]
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-gh$b-%ftc32&j@p!rc+j@#f#z2*^cl&((@8gn)u$ku1%g@kqmf'
+SECRET_KEY = os.getenv(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-gh$b-%ftc32&j@p!rc+j@#f#z2*^cl&((@8gn)u$ku1%g@kqmf',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env_bool('DJANGO_DEBUG', True)
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    'testserver',
-    '.onrender.com',
-]
+ALLOWED_HOSTS = env_list(
+    'DJANGO_ALLOWED_HOSTS',
+    ['localhost', '127.0.0.1', 'testserver', '.onrender.com'],
+)
 
 
 # Application definition
@@ -63,8 +87,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = env_bool('DJANGO_CORS_ALLOW_ALL_ORIGINS', True)
+CORS_ALLOWED_ORIGINS = env_list(
+    'DJANGO_CORS_ALLOWED_ORIGINS',
+    ['http://localhost:4200', 'http://127.0.0.1:4200'],
+)
+CORS_ALLOW_CREDENTIALS = env_bool('DJANGO_CORS_ALLOW_CREDENTIALS', True)
 
 ROOT_URLCONF = 'pi02.urls'
 
@@ -92,11 +120,11 @@ WSGI_APPLICATION = 'pi02.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'pi02-db',
-        'USER': 'pi02-user',
-        'PASSWORD': 'pi02',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.getenv('DB_NAME', 'pi02-db'),
+        'USER': os.getenv('DB_USER', 'pi02-user'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'pi02'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
