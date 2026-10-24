@@ -1,0 +1,138 @@
+<div class="page wallet-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Seu esforço vira conquista</p>
+      <h1 class="page-title">Carteira</h1>
+      <p class="page-sub">
+        Aqui ficam suas moedas, seu nível e as insígnias das missões que você já
+        concluiu.
+      </p>
+    </div>
+    <div class="page-header__actions">
+      <a class="btn btn--primary" routerLink="/aluno/missoes">
+        Ir para as missões
+        <app-icon name="arrow-right" [size]="18" />
+      </a>
+    </div>
+  </header>
+
+  <section class="wallet-grid" aria-label="Resumo da carteira">
+    <article class="coin-card">
+      <span class="coin-card__label">Saldo de moedas</span>
+      <div class="coin-card__value">
+        <span class="coin-card__coin" aria-hidden="true">$</span>
+        <strong>{{ student()?.coins ?? 0 }}</strong>
+      </div>
+      <p>As moedas são concedidas na primeira conclusão de cada missão.</p>
+    </article>
+
+    <article class="card wallet-level">
+      <div class="wallet-level__head">
+        <span class="stat-card__label">Nível {{ level().level }}</span>
+        <span class="tag">{{ level().name }}</span>
+      </div>
+      <strong class="wallet-level__xp">{{ xp() }} XP</strong>
+      <app-progress [value]="level().progressPct" label="Progresso para o próximo nível" />
+      <p class="small muted">
+        @if (level().xpToNext !== null) {
+          Faltam {{ level().xpToNext }} XP para o próximo nível.
+        } @else {
+          Você chegou ao nível máximo desta versão.
+        }
+      </p>
+    </article>
+
+    <article class="card wallet-stat">
+      <span class="stat-card__icon"><app-icon name="flag" [size]="22" /></span>
+      <strong>{{ completed() }}</strong>
+      <span>missões concluídas</span>
+    </article>
+
+    <article class="card wallet-stat">
+      <span class="stat-card__icon"><app-icon name="award" [size]="22" /></span>
+      <strong>{{ earnedBadges() }}/{{ badgeItems().length }}</strong>
+      <span>conquistas</span>
+    </article>
+  </section>
+
+  <div class="wallet-columns">
+    <section class="card" aria-labelledby="extract-title">
+      <div class="section-head">
+        <h2 class="section-title" id="extract-title">
+          <app-icon name="receipt" [size]="22" /> Extrato
+        </h2>
+        <span class="tag">{{ statement().length }} registros</span>
+      </div>
+
+      @if (statement().length > 0) {
+        <div class="table-wrap">
+          <table class="data-table">
+            <caption class="sr-only">
+              Histórico de missões, moedas e XP
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Data</th>
+                <th scope="col">Missão</th>
+                <th scope="col">Resultado</th>
+                <th scope="col">Moedas</th>
+                <th scope="col">XP</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (entry of statement(); track entry.record.activityId) {
+                <tr>
+                  <td>{{ formatDate(entry.record.lastAt) }}</td>
+                  <td>
+                    <a class="extract-link" [routerLink]="['/aluno/missoes', entry.record.activityId]">
+                      {{ entry.activity?.title }}
+                    </a>
+                  </td>
+                  <td>
+                    <app-star-rating [score]="entry.record.bestScore" />
+                    <span class="small muted">{{ entry.record.bestScore }}%</span>
+                  </td>
+                  <td>{{ entry.coins > 0 ? '+' + entry.coins : '—' }}</td>
+                  <td>{{ entry.xp > 0 ? '+' + entry.xp : '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="empty">
+          <h3>Nenhuma moeda ainda</h3>
+          <p>Conclua sua primeira missão para começar a preencher o extrato.</p>
+          <a class="btn btn--sm" routerLink="/aluno/missoes">Ver missões</a>
+        </div>
+      }
+
+      <div class="wallet-info">
+        <app-icon name="info" [size]="18" />
+        <p>
+          Nesta versão não há loja virtual. As moedas registram o esforço e
+          aparecem no perfil e no ranking. A loja ficou fora do escopo do MVP
+          definido no relatório.
+        </p>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="badges-title">
+      <div class="section-head">
+        <h2 class="section-title" id="badges-title">
+          <app-icon name="award" [size]="22" /> Conquistas
+        </h2>
+        <span class="tag">{{ earnedBadges() }}/{{ badgeItems().length }}</span>
+      </div>
+      <p class="small muted wallet-badges__hint">
+        Insígnias por missão concluída e marcos de evolução. As bloqueadas
+        mostram o próximo objetivo.
+      </p>
+      <div class="badge-grid">
+        @for (item of badgeItems(); track item.badge.id) {
+          <app-badge-card [badge]="item.badge" [earned]="item.earned" />
+        }
+      </div>
+    </section>
+  </div>
+</div>

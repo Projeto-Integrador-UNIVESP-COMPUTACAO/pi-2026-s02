@@ -1,0 +1,202 @@
+<div class="page classes-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Painel do professor</p>
+      <h1 class="page-title">Turmas</h1>
+      <p class="page-sub">
+        Acompanhe o progresso da turma, identifique quem precisa de apoio e
+        exporte os dados para a sua planilha.
+      </p>
+    </div>
+    <div class="page-header__actions">
+      <a class="btn btn--ghost" routerLink="/professor/relatorios">
+        <app-icon name="chart" [size]="18" />
+        Ver relatórios
+      </a>
+      <button type="button" class="btn btn--primary" (click)="exportCsv()">
+        <app-icon name="download" [size]="18" />
+        Exportar dados
+      </button>
+    </div>
+  </header>
+
+  <section class="class-overview" aria-label="Resumo da turma">
+    <div class="class-overview__head">
+      <div>
+        <span class="stat-card__label">Turma selecionada</span>
+        <strong>{{ context.currentClass()?.name }}</strong>
+        <span class="small muted">{{ context.currentClass()?.school }}</span>
+      </div>
+      <span class="tag">{{ metrics().studentCount }} alunos</span>
+    </div>
+
+    <div class="stat-grid">
+      <article class="stat-card">
+        <span class="stat-card__icon"><app-icon name="star" [size]="21" /></span>
+        <div>
+          <span class="stat-card__label">Nível médio</span>
+          <span class="stat-card__value">{{ metrics().averageLevel }}</span>
+        </div>
+      </article>
+      <article class="stat-card">
+        <span class="stat-card__icon"><app-icon name="flag" [size]="21" /></span>
+        <div>
+          <span class="stat-card__label">Conclusão</span>
+          <span class="stat-card__value">{{ metrics().completionPct }}%</span>
+        </div>
+      </article>
+      <article class="stat-card">
+        <span class="stat-card__icon"><app-icon name="chart" [size]="21" /></span>
+        <div>
+          <span class="stat-card__label">Média de acertos</span>
+          <span class="stat-card__value">{{ metrics().averageScore }}%</span>
+        </div>
+      </article>
+      <article class="stat-card">
+        <span class="stat-card__icon"><app-icon name="clock" [size]="21" /></span>
+        <div>
+          <span class="stat-card__label">Ativos (7 dias)</span>
+          <span class="stat-card__value">{{ metrics().activeLast7Days }}</span>
+        </div>
+      </article>
+    </div>
+
+    <div class="class-overview__progress">
+      <div class="class-overview__progress-label">
+        <span>Progresso da turma nas {{ totalMissions() }} missões</span>
+        <strong>{{ metrics().completionPct }}%</strong>
+      </div>
+      <app-progress [value]="metrics().completionPct" label="Conclusão das missões pela turma" />
+    </div>
+  </section>
+
+  @if (supportCount() > 0) {
+    <div class="alert support-alert" role="status">
+      <app-icon name="lightbulb" [size]="20" />
+      <p>
+        <strong>{{ supportCount() }} aluno(s) podem precisar de apoio.</strong>
+        Veja a coluna “Situação” e abra os detalhes para entender o percurso.
+      </p>
+    </div>
+  }
+
+  <section class="card table-card" aria-labelledby="students-title">
+    <div class="table-toolbar">
+      <div>
+        <h2 class="section-title" id="students-title">
+          <app-icon name="users" [size]="23" /> Alunos da turma
+        </h2>
+        <p class="small muted">
+          {{ filteredRows().length }} de {{ rows().length }} alunos exibidos
+        </p>
+      </div>
+
+      <div class="table-toolbar__search">
+        <label class="sr-only" for="student-search">Buscar aluno</label>
+        <span class="input-wrap__icon" aria-hidden="true">
+          <app-icon name="search" [size]="18" />
+        </span>
+        <input
+          id="student-search"
+          class="input"
+          type="search"
+          placeholder="Buscar aluno..."
+          [value]="query()"
+          (input)="onSearch($event)"
+        />
+      </div>
+    </div>
+
+    @if (filteredRows().length > 0) {
+      <div class="table-wrap">
+        <table class="data-table">
+          <caption class="sr-only">
+            Alunos da turma, nível, missões concluídas, média e último acesso
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Aluno</th>
+              <th scope="col">Nível</th>
+              <th scope="col">XP</th>
+              <th scope="col">Missões</th>
+              <th scope="col">Média</th>
+              <th scope="col">Último acesso</th>
+              <th scope="col">Situação</th>
+              <th scope="col"><span class="sr-only">Detalhes</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of filteredRows(); track row.student.id) {
+              <tr>
+                <td>
+                  <a class="cell-student" [routerLink]="['/professor/alunos', row.student.id]">
+                    <app-avatar [name]="row.student.name" [size]="32" />
+                    <span>
+                      <strong>{{ row.student.name }}</strong>
+                      <small>{{ row.student.coins }} moedas</small>
+                    </span>
+                  </a>
+                </td>
+                <td>{{ row.level }}</td>
+                <td><strong>{{ row.xp }}</strong></td>
+                <td>{{ row.completed }}/{{ totalMissions() }}</td>
+                <td>
+                  <span class="avg-cell">
+                    {{ row.average }}%
+                    <span class="avg-cell__bar" aria-hidden="true">
+                      <span [style.width.%]="row.average"></span>
+                    </span>
+                  </span>
+                </td>
+                <td>{{ row.lastAt ? formatDate(row.lastAt) : '—' }}</td>
+                <td>
+                  <span class="status-pill" [attr.data-status]="row.status">
+                    {{ row.statusLabel }}
+                  </span>
+                </td>
+                <td class="cell-actions">
+                  <a
+                    class="icon-btn"
+                    [routerLink]="['/professor/alunos', row.student.id]"
+                    [attr.aria-label]="'Ver detalhes de ' + row.student.name"
+                  >
+                    <app-icon name="arrow-right" [size]="17" />
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="empty">
+        <h3>Nenhum aluno encontrado</h3>
+        <p>Tente outro nome ou limpe a busca.</p>
+        <button type="button" class="btn btn--sm" (click)="clearSearch()">
+          Limpar busca
+        </button>
+      </div>
+    }
+
+    <div class="table-legend">
+      <span class="status-pill" data-status="star">Destaque</span>
+      <span class="status-pill" data-status="ok">Em dia</span>
+      <span class="status-pill" data-status="support">Precisa de apoio</span>
+      <span class="status-pill" data-status="done">Concluiu tudo</span>
+      <span class="small muted">
+        Dados calculados a partir das tentativas registradas. Alunos sem acesso
+        recente aparecem com “—”.
+      </span>
+    </div>
+  </section>
+
+  @if (topMission(); as best) {
+    <p class="classes-footnote">
+      <app-icon name="sparkles" [size]="17" />
+      Missão com melhor média da turma:
+      <strong>{{ best.activity.title }}</strong> ({{ best.averageScore }}%).
+      Veja o detalhamento em
+      <a routerLink="/professor/relatorios">Relatórios</a>.
+    </p>
+  }
+</div>

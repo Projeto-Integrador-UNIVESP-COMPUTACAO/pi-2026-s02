@@ -1,0 +1,134 @@
+<div class="page teacher-missions-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Curadoria e BNCC</p>
+      <h1 class="page-title">Missões</h1>
+      <p class="page-sub">
+        Catálogo de atividades do MVP, com a habilidade da BNCC trabalhada e o
+        desempenho da turma em cada uma.
+      </p>
+    </div>
+    <div class="page-header__actions">
+      <button type="button" class="btn btn--primary" (click)="exportCatalog()">
+        <app-icon name="download" [size]="18" />
+        Exportar catálogo
+      </button>
+    </div>
+  </header>
+
+  <section class="catalog-summary" aria-label="Resumo do catálogo">
+    <div>
+      <span class="stat-card__label">Missões no MVP</span>
+      <strong>{{ missionStats().length }}</strong>
+    </div>
+    <div>
+      <span class="stat-card__label">Questões no total</span>
+      <strong>{{ totalQuestions() }}</strong>
+    </div>
+    <div>
+      <span class="stat-card__label">Habilidades da BNCC</span>
+      <strong>3</strong>
+    </div>
+    <div class="catalog-summary__note">
+      <app-icon name="info" [size]="18" />
+      <p>
+        Nesta demonstração o catálogo é somente leitura. Na versão integrada, o
+        cadastro será feito pelo Django Admin, com enunciado, habilidade e
+        alternativas.
+      </p>
+    </div>
+  </section>
+
+  <div class="admin-mission-grid">
+    @for (stat of missionStats(); track stat.activity.id) {
+      <article class="card admin-mission">
+        <div class="admin-mission__head">
+          <span class="admin-mission__icon">
+            <app-icon [name]="stat.activity.icon" [size]="28" />
+          </span>
+          <div class="admin-mission__title">
+            <h2>{{ stat.activity.title }}</h2>
+            <p>{{ stat.activity.tagline }}</p>
+          </div>
+          <span class="tag">{{ stat.activity.gradeLabel }}</span>
+        </div>
+
+        <div class="admin-mission__tags">
+          @for (skill of stat.activity.skills; track skill) {
+            <span class="tag skill-tag" [attr.data-skill]="skill">{{ skill }}</span>
+          }
+          <span class="tag">{{ difficultyLabel(stat.activity.difficulty) }}</span>
+          <span class="tag">{{ stat.activity.questions.length }} questões</span>
+        </div>
+
+        <p class="admin-mission__desc">{{ stat.activity.description }}</p>
+
+        <div class="admin-mission__stats">
+          <div>
+            <span class="stat-card__label">Média da turma</span>
+            <strong>{{ stat.averageScore }}%</strong>
+          </div>
+          <div>
+            <span class="stat-card__label">Concluíram</span>
+            <strong>{{ stat.completedStudents }}/{{ students().length }}</strong>
+          </div>
+          <div>
+            <span class="stat-card__label">Tentativas</span>
+            <strong>{{ stat.attempts }}</strong>
+          </div>
+          <div>
+            <span class="stat-card__label">Recompensa</span>
+            <strong>+{{ stat.activity.rewardCoins }}</strong>
+          </div>
+        </div>
+
+        <app-progress
+          [value]="stat.completionPct"
+          [label]="'Conclusão da missão ' + stat.activity.title"
+        />
+
+        <details class="mission-details">
+          <summary>
+            Ver questões e orientações
+            <app-icon name="chevron-down" [size]="17" />
+          </summary>
+          <ol class="mission-questions">
+            @for (question of stat.activity.questions; track question.id; let i = $index) {
+              <li>
+                <strong>Questão {{ i + 1 }}</strong>
+                <p>{{ question.prompt }}</p>
+                <span class="small muted">{{ question.explanation }}</span>
+              </li>
+            }
+          </ol>
+        </details>
+      </article>
+    }
+  </div>
+
+  <section class="scope-card card card--soft section" aria-labelledby="scope-title">
+    <h2 class="section-title" id="scope-title">
+      <app-icon name="book" [size]="22" /> Escopo do MVP
+    </h2>
+    <div class="scope-grid">
+      <div>
+        <strong>Dentro do escopo</strong>
+        <ul>
+          <li>Missões curtas de troco, ofertas, parcelamento, poupança e orçamento.</li>
+          <li>Feedback explicativo e nova tentativa.</li>
+          <li>Pontos, moedas, barra de progresso e insígnias por missão.</li>
+          <li>Painel do professor com turmas, métricas e exportação CSV.</li>
+        </ul>
+      </div>
+      <div>
+        <strong>Fora desta etapa</strong>
+        <ul>
+          <li>Loja virtual e avatar personalizável.</li>
+          <li>Narrativa extensa e modos multijogador.</li>
+          <li>Simulações econômicas complexas.</li>
+          <li>Integração real com o banco PostgreSQL (nesta demonstração).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>

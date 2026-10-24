@@ -1,0 +1,355 @@
+<div class="page page--narrow activity-page">
+  <nav class="activity-top" aria-label="Navegação da missão">
+    <a class="activity-back" routerLink="/aluno/missoes">
+      <app-icon name="arrow-left" [size]="18" />
+      Voltar às missões
+    </a>
+    <div class="activity-top__meta">
+      @if (activity(); as activity) {
+        <span class="tag">{{ activity.gradeLabel }}</span>
+        <span class="small muted">{{ activity.estimatedMinutes }} min</span>
+      }
+    </div>
+  </nav>
+
+  @if (activity(); as activity) {
+    @if (!finished()) {
+      <header class="activity-head">
+        <span class="activity-head__icon">
+          <app-icon [name]="activity.icon" [size]="34" />
+        </span>
+        <div class="activity-head__text">
+          <p class="eyebrow">{{ activity.tagline }}</p>
+          <h1 id="question-title" class="activity-title" tabindex="-1">
+            {{ activity.title }}
+          </h1>
+        </div>
+        @if (record()?.passed) {
+          <div class="activity-head__record">
+            <span class="small muted">Seu recorde</span>
+            <strong>{{ record()?.bestScore }}%</strong>
+            <app-star-rating [score]="record()?.bestScore ?? 0" />
+          </div>
+        }
+      </header>
+
+      <div class="activity-progress">
+        <div class="activity-progress__labels">
+          <span>Questão {{ index() + 1 }} de {{ total() }}</span>
+          <span>{{ progressPct() }}%</span>
+        </div>
+        <app-progress [value]="progressPct()" [label]="'Progresso da missão: ' + progressPct() + '%'" />
+      </div>
+
+      <div class="activity-layout">
+        <section class="card question-card" aria-labelledby="question-prompt">
+          @if (question(); as q) {
+            <div class="question-meta">
+              <span class="tag">Questão {{ index() + 1 }}</span>
+              @for (skill of activity.skills; track skill) {
+                <span class="tag skill-tag" [attr.data-skill]="skill">{{ skill }}</span>
+              }
+            </div>
+
+            @if (q.scenario) {
+              <p class="scenario">{{ q.scenario }}</p>
+            }
+
+            @if (q.table?.length) {
+              <dl class="receipt" aria-label="Dados da situação">
+                @for (row of q.table; track row.label) {
+                  <div class="receipt__row" [attr.data-emphasis]="row.emphasis ? 'true' : null">
+                    <dt>{{ row.label }}</dt>
+                    <dd>{{ row.value }}</dd>
+                  </div>
+                }
+              </dl>
+            }
+
+            <h2 id="question-prompt" class="question-prompt">{{ q.prompt }}</h2>
+
+            @if (q.kind === 'choice') {
+              <div class="options" role="group" aria-labelledby="question-prompt">
+                @for (option of q.options ?? []; track option.id; let i = $index) {
+                  <button
+                    type="button"
+                    class="option"
+                    [class.is-selected]="selectedOption() === option.id"
+                    [attr.aria-pressed]="selectedOption() === option.id"
+                    [disabled]="checked()"
+                    (click)="selectOption(option.id)"
+                  >
+                    <span class="option__letter" aria-hidden="true">{{ letter(i) }}</span>
+                    <span class="option__text">
+                      <strong>{{ option.label }}</strong>
+                      @if (option.detail) {
+                        <small>{{ option.detail }}</small>
+                      }
+                    </span>
+                    <span class="option__mark" aria-hidden="true">
+                      @if (selectedOption() === option.id) {
+                        <app-icon name="check" [size]="18" />
+                      }
+                    </span>
+                  </button>
+                }
+              </div>
+            } @else {
+              <div class="numeric">
+                <label class="label" for="numeric-answer">Sua resposta</label>
+                <div class="numeric__field">
+                  @if (unitPrefix()) {
+                    <span class="numeric__affix" aria-hidden="true">{{ unitPrefix() }}</span>
+                  }
+                  <input
+                    id="numeric-answer"
+                    class="input numeric__input"
+                    type="text"
+                    inputmode="decimal"
+                    autocomplete="off"
+                    placeholder="0,00"
+                    [value]="answerText()"
+                    [disabled]="checked()"
+                    [attr.aria-invalid]="inputError() ? 'true' : null"
+                    aria-describedby="numeric-help"
+                    (input)="onAnswerInput($event)"
+                    (keydown.enter)="checkAnswer()"
+                  />
+                  @if (unitSuffix()) {
+                    <span class="numeric__affix numeric__affix--suffix">{{ unitSuffix() }}</span>
+                  }
+                </div>
+                <p id="numeric-help" class="help">
+                  Use vírgula ou ponto para os centavos. Exemplo: 9,50.
+                </p>
+              </div>
+            }
+
+            @if (inputError()) {
+              <p class="field-error" role="alert">{{ inputError() }}</p>
+            }
+
+            @if (q.hint) {
+              <div class="hint">
+                <button type="button" class="hint__toggle" [attr.aria-expanded]="hintOpen()" (click)="toggleHint()">
+                  <app-icon name="lightbulb" [size]="17" />
+                  {{ hintOpen() ? 'Ocultar dica' : 'Ver dica' }}
+                </button>
+                @if (hintOpen()) {
+                  <p class="hint__text">{{ q.hint }}</p>
+                }
+              </div>
+            }
+
+            @if (feedback()) {
+              <div
+                id="feedback-box"
+                class="feedback"
+                [attr.data-tone]="feedback()"
+                role="status"
+                aria-live="polite"
+                tabindex="-1"
+              >
+                <span class="feedback__icon" aria-hidden="true">
+                  <app-icon [name]="feedback() === 'correct' ? 'check' : 'lightbulb'" [size]="24" />
+                </span>
+                <div class="feedback__body">
+                  <h3>
+                    @if (feedback() === 'correct') {
+                      Boa! Você acertou.
+                    } @else {
+                      Quase lá. Vamos entender juntos?
+                    }
+                  </h3>
+                  <p>{{ q.explanation }}</p>
+                  @if (feedback() === 'wrong') {
+                    <p class="small">
+                      Você pode tentar de novo ou seguir para a próxima questão.
+                    </p>
+                  }
+                </div>
+              </div>
+            }
+
+            <div class="question-actions">
+              @if (!checked()) {
+                <button type="button" class="btn btn--primary" (click)="checkAnswer()">
+                  Verificar resposta
+                  <app-icon name="check" [size]="18" />
+                </button>
+              } @else if (feedback() === 'wrong') {
+                <button type="button" class="btn btn--primary" (click)="retryQuestion()">
+                  <app-icon name="refresh" [size]="18" />
+                  Tentar novamente
+                </button>
+                <button type="button" class="btn btn--ghost" (click)="skipAndNext()">
+                  Seguir para a próxima
+                </button>
+              } @else {
+                <button type="button" class="btn btn--primary" (click)="next()">
+                  {{ isLast() ? 'Ver resultado' : 'Próxima questão' }}
+                  <app-icon name="arrow-right" [size]="18" />
+                </button>
+              }
+            </div>
+          }
+        </section>
+
+        <aside class="activity-side">
+          <section class="card side-card" aria-labelledby="attempt-title">
+            <h2 class="side-title" id="attempt-title">
+              <app-icon name="list-checks" [size]="20" /> Sua tentativa
+            </h2>
+            <dl class="side-stats">
+              <div>
+                <dt>Questão</dt>
+                <dd>{{ index() + 1 }} de {{ total() }}</dd>
+              </div>
+              <div>
+                <dt>Acertos</dt>
+                <dd>{{ correctCount() }}</dd>
+              </div>
+              <div>
+                <dt>Erros</dt>
+                <dd>{{ errors() }}</dd>
+              </div>
+              <div>
+                <dt>Recompensa</dt>
+                <dd>+{{ activity.rewardCoins }} moedas</dd>
+              </div>
+            </dl>
+            <p class="side-note">
+              A nota considera a resposta final de cada questão. Os erros ficam
+              registrados para o professor acompanhar o percurso.
+            </p>
+          </section>
+
+          <section class="card side-card side-card--soft" aria-labelledby="support-title">
+            <h2 class="side-title" id="support-title">
+              <app-icon name="info" [size]="20" /> Como funciona
+            </h2>
+            <ul class="side-list">
+              <li>Leia a situação com calma e confira os dados da tabela.</li>
+              <li>Você pode pedir uma dica sem perder pontos.</li>
+              <li>Acertar 60% ou mais conclui a missão e libera moedas.</li>
+            </ul>
+          </section>
+        </aside>
+      </div>
+    } @else if (outcome(); as result) {
+      <section class="result card" aria-labelledby="result-title">
+        <div class="result__top" [attr.data-tone]="result.passed ? 'pass' : 'retry'">
+          <span class="result__icon" aria-hidden="true">
+            <app-icon [name]="result.passed ? 'trophy' : 'lightbulb'" [size]="42" />
+          </span>
+          <p class="eyebrow">{{ result.passed ? 'Missão concluída' : 'Quase lá' }}</p>
+          <h1 id="result-title" tabindex="-1">
+            @if (result.passed) {
+              Mandou bem, {{ student()?.name }}!
+            } @else {
+              Vamos tentar de novo?
+            }
+          </h1>
+          <p class="result__message">
+            @if (result.passed) {
+              Você concluiu {{ activity.title }} com {{ result.score }}% de
+              acerto. Seu progresso foi salvo.
+            } @else {
+              Você fez {{ result.score }}% nesta tentativa. Leia as explicações
+              com calma e tente outra vez — errar faz parte de aprender.
+            }
+          </p>
+
+          <div class="result__score">
+            <span class="result__number">{{ result.score }}%</span>
+            <app-star-rating [score]="result.score" [size]="24" />
+          </div>
+        </div>
+
+        <div class="result__stats">
+          <div>
+            <span>XP</span>
+            <strong>+{{ result.xpGain }}</strong>
+          </div>
+          <div>
+            <span>Moedas</span>
+            <strong>+{{ result.coinsGain }}</strong>
+          </div>
+          <div>
+            <span>Erros</span>
+            <strong>{{ result.record.errors }}</strong>
+          </div>
+          <div>
+            <span>Recorde</span>
+            <strong>{{ result.bestScore }}%</strong>
+          </div>
+        </div>
+
+        @if (result.levelAfter > result.levelBefore) {
+          <div class="result__banner" role="status">
+            <app-icon name="sparkles" [size]="22" />
+            <p>
+              <strong>Novo nível {{ result.levelAfter }}!</strong>
+              Continue resolvendo missões para evoluir ainda mais.
+            </p>
+          </div>
+        }
+
+        @if (result.newBadges.length > 0) {
+          <section class="result__badges" aria-labelledby="new-badges-title">
+            <h2 class="side-title" id="new-badges-title">
+              <app-icon name="award" [size]="21" /> Novas conquistas
+            </h2>
+            <div class="badge-grid">
+              @for (badge of result.newBadges; track badge.id) {
+                <app-badge-card [badge]="badge" [earned]="true" />
+              }
+            </div>
+          </section>
+        }
+
+        <section class="result__review" aria-labelledby="review-title">
+          <h2 class="side-title" id="review-title">
+            <app-icon name="list-checks" [size]="21" /> Revisão da missão
+          </h2>
+          <ol class="review-list">
+            @for (item of review(); track item.question.id; let i = $index) {
+              <li [class.is-correct]="item.correct">
+                <span class="review-list__mark" aria-hidden="true">
+                  <app-icon [name]="item.correct ? 'check' : 'close'" [size]="16" />
+                </span>
+                <span>
+                  <strong>Questão {{ i + 1 }}</strong>
+                  <span>{{ item.question.prompt }}</span>
+                </span>
+                <span class="sr-only">{{ item.correct ? 'Acertou' : 'Não acertou' }}</span>
+              </li>
+            }
+          </ol>
+        </section>
+
+        <div class="result__actions">
+          <button type="button" class="btn btn--primary" (click)="restart()">
+            <app-icon name="refresh" [size]="18" />
+            {{ result.passed ? 'Jogar de novo' : 'Tentar de novo' }}
+          </button>
+          <a class="btn" routerLink="/aluno/missoes">Voltar às missões</a>
+          @if (result.passed) {
+            <a class="btn btn--ghost" routerLink="/aluno/ranking">Ver ranking</a>
+          }
+        </div>
+
+        <p class="result__note">
+          Nesta demonstração, o progresso fica salvo no seu navegador. Na versão
+          integrada, será registrado no banco de dados da escola.
+        </p>
+      </section>
+    }
+  } @else {
+    <div class="empty">
+      <h3>Missão não encontrada</h3>
+      <p>Ela pode ter sido removida ou o endereço está incorreto.</p>
+      <a class="btn btn--sm" routerLink="/aluno/missoes">Voltar às missões</a>
+    </div>
+  }
+</div>

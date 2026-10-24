@@ -1,0 +1,107 @@
+<div class="page missions-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Trilhas de aprendizagem</p>
+      <h1 class="page-title">Missões</h1>
+      <p class="page-sub">
+        Cada missão trabalha uma situação financeira do dia a dia e vale moedas
+        e XP. Você pode repetir para melhorar seu recorde.
+      </p>
+    </div>
+    <div class="page-header__actions">
+      <span class="tag"><app-icon name="book" [size]="15" /> 3 habilidades da BNCC</span>
+    </div>
+  </header>
+
+  <section class="mission-summary card" aria-label="Progresso nas missões">
+    <div class="mission-summary__main">
+      <div class="mission-summary__head">
+        <div>
+          <span class="stat-card__label">Seu progresso</span>
+          <strong>{{ completed() }} de {{ missions().length }} missões concluídas</strong>
+        </div>
+        <span class="mission-summary__pct">{{ progressPct() }}%</span>
+      </div>
+      <app-progress [value]="progressPct()" label="Progresso geral nas missões" />
+    </div>
+
+    <div class="mission-summary__skills">
+      @for (skill of skills(); track skill.code) {
+        <span class="tag skill-tag" [attr.data-skill]="skill.code">
+          {{ skill.code }}
+        </span>
+      }
+      <span class="small muted">Habilidades trabalhadas no MVP</span>
+    </div>
+  </section>
+
+  <div class="filter-bar section" role="group" aria-label="Filtrar missões">
+    <button
+      type="button"
+      class="filter-chip"
+      [attr.aria-pressed]="filter() === 'all'"
+      (click)="setFilter('all')"
+    >
+      Todas <span class="filter-chip__count">{{ counts().all }}</span>
+    </button>
+    <button
+      type="button"
+      class="filter-chip"
+      [attr.aria-pressed]="filter() === 'available'"
+      (click)="setFilter('available')"
+    >
+      Para fazer <span class="filter-chip__count">{{ counts().available }}</span>
+    </button>
+    <button
+      type="button"
+      class="filter-chip"
+      [attr.aria-pressed]="filter() === 'done'"
+      (click)="setFilter('done')"
+    >
+      Concluídas <span class="filter-chip__count">{{ counts().done }}</span>
+    </button>
+  </div>
+
+  @if (filtered().length > 0) {
+    <div class="mission-grid section">
+      @for (mission of filtered(); track mission.activity.id) {
+        <app-mission-card [activity]="mission.activity" [record]="mission.record" />
+      }
+    </div>
+  } @else {
+    <div class="empty section">
+      <h3>Nada por aqui ainda</h3>
+      <p>
+        @if (filter() === 'done') {
+          Conclua sua primeira missão para vê-la nesta lista.
+        } @else {
+          Você já concluiu todas as missões disponíveis. Que tal revisar uma
+          delas?
+        }
+      </p>
+      <button type="button" class="btn btn--sm" (click)="setFilter('all')">
+        Ver todas as missões
+      </button>
+    </div>
+  }
+
+  <section class="mission-legend card card--soft section" aria-labelledby="legend-title">
+    <h2 class="section-title" id="legend-title">
+      <app-icon name="info" [size]="22" /> Como as missões funcionam
+    </h2>
+    <div class="legend-grid">
+      <div>
+        <strong>1. Resolva os desafios</strong>
+        <p>Cada missão tem 3 situações-problema curtas, com contexto e dicas.</p>
+      </div>
+      <div>
+        <strong>2. Receba feedback na hora</strong>
+        <p>Se errar, você vê a explicação e pode tentar de novo sem medo.</p>
+      </div>
+      <div>
+        <strong>3. Ganhe moedas e XP</strong>
+        <p>Ao acertar 60% ou mais, a missão é concluída e entra no seu recorde.</p>
+      </div>
+    </div>
+  </section>
+</div>

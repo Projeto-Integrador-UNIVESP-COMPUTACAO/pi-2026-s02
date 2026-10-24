@@ -1,0 +1,193 @@
+<div class="page student-detail-page">
+  <nav class="detail-top" aria-label="Navegação">
+    <a class="detail-back" routerLink="/professor/turmas">
+      <app-icon name="arrow-left" [size]="18" />
+      Voltar para a turma
+    </a>
+    <button type="button" class="btn btn--sm btn--ghost no-print" (click)="exportCsv()">
+      <app-icon name="download" [size]="17" />
+      Exportar ficha
+    </button>
+  </nav>
+
+  @if (student(); as aluno) {
+    <section class="profile card">
+      <app-avatar [name]="aluno.name" [size]="82" />
+      <div class="profile__main">
+        <p class="eyebrow">Ficha do aluno</p>
+        <h1>{{ aluno.name }}</h1>
+        <p>
+          {{ classInfo()?.name }} · {{ classInfo()?.school }}
+          <span class="profile__since">· desde {{ formatDate(aluno.joinedAt) }}</span>
+        </p>
+      </div>
+      <div class="profile__rank">
+        <span class="stat-card__label">No ranking</span>
+        <strong>{{ rank()?.position ?? '—' }}º</strong>
+        <span class="small muted">{{ rank()?.xp ?? 0 }} XP</span>
+      </div>
+    </section>
+
+    <section class="stat-grid detail-stats" aria-label="Resumo do aluno">
+      <article class="stat-card">
+        <span class="stat-card__icon"><app-icon name="star" [size]="21" /></span>
+        <div>
+          <span class="stat-card__label">Nível</span>
+          <span class="stat-card__value">{{ level().level }} · {{ level().name }}</span>
+        </div>
+      </article>
+      <article class="stat-card">
+        <span class="stat-card__icon"><app-icon name="chart" [size]="21" /></span>
+        <div>
+          <span class="stat-card__label">Média</span>
+          <span class="stat-card__value">{{ average() }}%</span>
+        </div>
+      </article>
+      <article class="stat-card">
+        <span class="stat-card__icon"><app-icon name="flag" [size]="21" /></span>
+        <div>
+          <span class="stat-card__label">Missões</span>
+          <span class="stat-card__value">{{ completed() }}/{{ totalMissions() }}</span>
+        </div>
+      </article>
+      <article class="stat-card">
+        <span class="stat-card__icon"><app-icon name="coin" [size]="21" /></span>
+        <div>
+          <span class="stat-card__label">Moedas</span>
+          <span class="stat-card__value">{{ aluno.coins }}</span>
+        </div>
+      </article>
+    </section>
+
+    <div class="detail-columns">
+      <section class="card" aria-labelledby="progress-title">
+        <div class="section-head">
+          <h2 class="section-title" id="progress-title">
+            <app-icon name="list-checks" [size]="22" /> Progresso nas missões
+          </h2>
+          <span class="tag">{{ completed() }} concluídas</span>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <caption class="sr-only">Progresso do aluno em cada missão</caption>
+            <thead>
+              <tr>
+                <th scope="col">Missão</th>
+                <th scope="col">Situação</th>
+                <th scope="col">Melhor</th>
+                <th scope="col">Tentativas</th>
+                <th scope="col">Erros</th>
+                <th scope="col">Último acesso</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of missionRows(); track row.activity.id) {
+                <tr>
+                  <td>
+                    <span class="mission-cell">
+                      <app-icon [name]="row.activity.icon" [size]="17" />
+                      {{ row.activity.title }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="status-pill" [attr.data-status]="row.status">
+                      {{ row.statusLabel }}
+                    </span>
+                  </td>
+                  <td>
+                    @if (row.record) {
+                      <span class="best-cell">
+                        {{ row.record.bestScore }}%
+                        @if (row.record.passed) {
+                          <app-star-rating [score]="row.record.bestScore" [size]="14" />
+                        }
+                      </span>
+                    } @else {
+                      —
+                    }
+                  </td>
+                  <td>{{ row.record?.attempts ?? 0 }}</td>
+                  <td>{{ row.record?.errors ?? 0 }}</td>
+                  <td>{{ row.record ? formatDate(row.record.lastAt) : '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="badges-title">
+        <div class="section-head">
+          <h2 class="section-title" id="badges-title">
+            <app-icon name="award" [size]="22" /> Conquistas
+          </h2>
+          <span class="tag">{{ earnedBadges() }}/{{ badgeItems().length }}</span>
+        </div>
+        <div class="badge-grid">
+          @for (item of badgeItems(); track item.badge.id) {
+            <app-badge-card [badge]="item.badge" [earned]="item.earned" />
+          }
+        </div>
+      </section>
+    </div>
+
+    <section class="card history-card" aria-labelledby="history-title">
+      <div class="section-head">
+        <h2 class="section-title" id="history-title">
+          <app-icon name="clock" [size]="22" /> Histórico de tentativas
+        </h2>
+        <span class="tag">{{ history().length }} registros</span>
+      </div>
+
+      @if (history().length > 0) {
+        <div class="table-wrap">
+          <table class="data-table">
+            <caption class="sr-only">Histórico de tentativas do aluno</caption>
+            <thead>
+              <tr>
+                <th scope="col">Data</th>
+                <th scope="col">Missão</th>
+                <th scope="col">Resultado</th>
+                <th scope="col">Erros</th>
+                <th scope="col">Situação</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (entry of history(); track entry.at + entry.activityTitle) {
+                <tr>
+                  <td>{{ formatDate(entry.at) }}</td>
+                  <td>{{ entry.activityTitle }}</td>
+                  <td><strong>{{ entry.score }}%</strong></td>
+                  <td>{{ entry.errors }}</td>
+                  <td>
+                    <span class="status-pill" [attr.data-status]="entry.passed ? 'done' : 'support'">
+                      {{ entry.passed ? 'Concluída' : 'Tentativa' }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="empty">
+          <h3>Sem tentativas registradas</h3>
+          <p>O aluno ainda não iniciou nenhuma missão.</p>
+        </div>
+      }
+
+      <p class="detail-note">
+        Os registros vêm do modelo de Histórico Progresso: data, erros antes do
+        acerto e pontuação final. Nesta demonstração, os dados ficam no
+        navegador.
+      </p>
+    </section>
+  } @else {
+    <div class="empty">
+      <h3>Aluno não encontrado</h3>
+      <p>Ele pode ter sido removido da turma.</p>
+      <a class="btn btn--sm" routerLink="/professor/turmas">Voltar às turmas</a>
+    </div>
+  }
+</div>
