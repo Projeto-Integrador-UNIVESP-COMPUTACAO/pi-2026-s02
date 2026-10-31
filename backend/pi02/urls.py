@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 from pi02.views import health, readiness
+from users.views import create_user
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -19,6 +20,7 @@ urlpatterns = [
     path('api/health/ready', readiness, name='api-health-ready'),
     path('api/health/ready/', readiness, name='api-health-ready-slash'),
 
+    path("api/users", create_user, name="user-create-no-slash"),
     path("api/users/", include("users.urls")),
     path("api/classrooms/", include("classrooms.urls")),
     path("api/content/", include("content.urls")),
